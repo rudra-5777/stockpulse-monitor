@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StockPulse - Real-Time Monitor</title>
+  <link rel="stylesheet" href="styles.css" />
+  <!-- SRI hashes pin each script to an exact file — a compromised CDN cannot inject code (CWE-353) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.9/dist/chart.umd.min.js"
+          integrity="sha384-b0GXujLkk9eYYSmcSfoyZbfyElGAQnDyY0skCHSG6w3JgTMFnz11ggrTAr7seu9f"
+          crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-financial@0.1.1/dist/chartjs-chart-financial.min.js"
+          integrity="sha384-elIw5jAwGpYjdlRvfI/lttdMkYz0NmTHFcCpQN62ztww5KWfnZby4PZwnKlVXywY"
+          crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/luxon@3.5.0/build/global/luxon.min.js"
+          integrity="sha384-CU0J6nu6GO5gWB5IqOOhPQsG0LKyjpotF5Gw502R+0zbkzKHjDWc6FKSZsNTJfLX"
+          crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.3.1/dist/chartjs-adapter-luxon.umd.min.js"
+          integrity="sha384-7cWzHabR6ZyfMWzZgVssYaOQRTccHUWZ0F09AanlF3RAJ/JNyFnIma2JTYIVKEUP"
+          crossorigin="anonymous"></script>
+</head>
+<body>
+  <header class="header">
+    <div class="header-left">
+      <span class="logo">📈 StockPulse</span>
+      <span class="refresh-badge" id="refreshBadge">● LIVE</span>
+    </div>
+    <div class="header-right">
+      <div class="search-wrapper">
+        <input type="text" id="searchInput" placeholder="Search symbol (e.g. AAPL)..." autocomplete="off" />
+        <div class="search-dropdown" id="searchDropdown"></div>
+      </div>
+      <button class="btn-icon" id="themeToggle" title="Toggle theme">🌙</button>
+      <button class="btn-icon" id="alertsBtn" title="Alerts">🔔 <span class="badge" id="alertCount">0</span></button>
+    </div>
+  </header>
+
+  <main class="main">
+    <!-- Watchlist Panel -->
+    <section class="watchlist-panel">
+      <div class="panel-header">
+        <h2>Watchlist <span class="count" id="watchlistCount">0/50</span></h2>
+        <button class="btn-sm" id="addSymbolBtn">+ Add Symbol</button>
+      </div>
+      <div class="add-symbol-form hidden" id="addSymbolForm">
+        <input type="text" id="symbolInput" placeholder="Enter symbol (e.g. TSLA)" maxlength="10" />
+        <button class="btn-primary" id="confirmAdd">Add</button>
+        <button class="btn-ghost" id="cancelAdd">Cancel</button>
+      </div>
+      <div class="watchlist" id="watchlist">
+        <div class="empty-state" id="emptyState">
+          <p>No stocks added yet.</p>
+          <p>Add up to 50 symbols to track live prices.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Chart Panel -->
+    <section class="chart-panel">
+      <div class="chart-header">
+        <div class="chart-title-group">
+          <h2 id="chartTitle">Select a stock</h2>
+          <span class="chart-subtitle" id="chartSubtitle"></span>
+        </div>
+        <div class="chart-controls">
+          <div class="chart-type-btns">
+            <button class="chart-btn active" data-type="line">Line</button>
+            <button class="chart-btn" data-type="bar">Bar</button>
+            <button class="chart-btn" data-type="candlestick">Candle</button>
+          </div>
+          <div class="range-btns">
+            <button class="range-btn active" data-range="1d">1D</button>
+            <button class="range-btn" data-range="5d">5D</button>
+            <button class="range-btn" data-range="1mo">1M</button>
+            <button class="range-btn" data-range="3mo">3M</button>
+          </div>
+        </div>
+      </div>
+      <div class="chart-container">
+        <canvas id="stockChart"></canvas>
+        <div class="chart-placeholder" id="chartPlaceholder">
+          <span>📊</span>
+          <p>Click a stock to view its chart</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Alerts Panel -->
+    <section class="alerts-panel" id="alertsPanel">
+      <div class="panel-header">
+        <h2>Price Alerts</h2>
+        <button class="btn-icon close-btn" id="closeAlerts">✕</button>
+      </div>
+      <div class="alert-form">
+        <select id="alertSymbol">
+          <option value="">Select symbol</option>
+        </select>
+        <select id="alertCondition">
+          <option value="above">Price goes above</option>
+          <option value="below">Price goes below</option>
+        </select>
+        <input type="number" id="alertPrice" placeholder="Target price" step="0.01" min="0" />
+        <button class="btn-primary" id="addAlertBtn">Set Alert</button>
+      </div>
+      <div class="alerts-list" id="alertsList">
+        <p class="empty-state">No alerts set.</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- Toast notifications -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <footer class="site-footer">
+    <span>© 2026 StockPulse. Data is for informational purposes only — not financial advice.</span>
+    <a href="/privacy.html">Privacy Policy</a>
+  </footer>
+
+  <script src="alerts.js"></script>
+  <script src="charts.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

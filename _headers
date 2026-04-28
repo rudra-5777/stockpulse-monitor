@@ -1,0 +1,24 @@
+/*
+  # Prevent clickjacking (CWE-1021)
+  X-Frame-Options: DENY
+
+  # Prevent MIME-sniffing (CWE-16)
+  X-Content-Type-Options: nosniff
+
+  # Referrer leakage control
+  Referrer-Policy: strict-origin-when-cross-origin
+
+  # Restrict unused browser features
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=()
+
+  # Content Security Policy — mitigates XSS (CWE-79)
+  # - default-src self only
+  # - scripts: self + specific jsdelivr CDN origins only
+  # - styles: self + unsafe-inline (required for Chart.js inline styles)
+  # - connect: self + Yahoo Finance proxy origins for live data
+  # - img/font: self + data URIs
+  # - frame/object: none
+  Content-Security-Policy: default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; connect-src 'self' https://corsproxy.io https://api.allorigins.win https://query1.finance.yahoo.com https://query2.finance.yahoo.com https://registry.npmjs.org; img-src 'self' data:; font-src 'self' data:; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'
+
+  # HSTS — enforce HTTPS (Netlify serves over HTTPS by default)
+  Strict-Transport-Security: max-age=31536000; includeSubDomains; preload

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Privacy Policy – StockPulse</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .privacy-content {
+      max-width: 760px;
+      margin: 2rem auto;
+      padding: 2rem;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      line-height: 1.7;
+      color: var(--text);
+    }
+    .privacy-content h1 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+    .privacy-content h2 { font-size: 1.05rem; margin: 1.5rem 0 0.4rem; color: var(--accent); }
+    .privacy-content p, .privacy-content li { font-size: 0.9rem; color: var(--text2); }
+    .privacy-content ul { padding-left: 1.25rem; }
+    .privacy-content a { color: var(--accent); }
+    .back-link { display: inline-block; margin: 1rem 1.5rem; color: var(--accent); font-size: 0.875rem; text-decoration: none; }
+    .back-link:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-left">
+      <span class="logo">📈 StockPulse</span>
+    </div>
+  </header>
+
+  <a href="/" class="back-link">← Back to Dashboard</a>
+
+  <div class="privacy-content">
+    <h1>Privacy Policy</h1>
+    <p>Last updated: April 27, 2026</p>
+
+    <h2>1. Overview</h2>
+    <p>StockPulse ("we", "our", "the app") is a client-side stock monitoring tool. We are committed to protecting your privacy. This policy explains what data is collected and how it is used.</p>
+
+    <h2>2. Data We Collect</h2>
+    <ul>
+      <li>Watchlist symbols and alert preferences — stored locally in your browser's <code>localStorage</code>. This data never leaves your device.</li>
+      <li>Theme preference — stored locally in <code>localStorage</code>.</li>
+      <li>No account registration, no cookies, no tracking pixels.</li>
+    </ul>
+
+    <h2>3. Third-Party Data Sources</h2>
+    <p>Live stock price data is fetched from Yahoo Finance via public CORS proxy services (<code>corsproxy.io</code>, <code>allorigins.win</code>). Your IP address may be visible to these services when requests are made. We do not control their privacy practices.</p>
+
+    <h2>4. Third-Party Scripts</h2>
+    <p>We load Chart.js and related libraries from <a href="https://www.jsdelivr.com" target="_blank" rel="noopener noreferrer">jsDelivr CDN</a>. All scripts are loaded with Subresource Integrity (SRI) hashes to prevent tampering. jsDelivr may log request metadata per their own <a href="https://www.jsdelivr.com/privacy-policy-jsdelivr-net" target="_blank" rel="noopener noreferrer">privacy policy</a>.</p>
+
+    <h2>5. Data Retention</h2>
+    <p>All data is stored exclusively in your browser's <code>localStorage</code>. You can clear it at any time via your browser settings. We have no server-side storage.</p>
+
+    <h2>6. Your Rights</h2>
+    <p>Since all data is stored locally on your device, you have full control. Clear your browser's site data to remove all stored preferences.</p>
+
+    <h2>7. Changes to This Policy</h2>
+    <p>We may update this policy. The "last updated" date at the top will reflect any changes.</p>
+
+    <h2>8. Contact</h2>
+    <p>This is an open-source demonstration project. For questions, open an issue on the project repository.</p>
+  </div>
+
+  <footer class="site-footer">
+    <span>© 2026 StockPulse. Data is for informational purposes only — not financial advice.</span>
+    <a href="/privacy.html">Privacy Policy</a>
+  </footer>
+</body>
+</html>
