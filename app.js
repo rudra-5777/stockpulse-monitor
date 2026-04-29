@@ -103,14 +103,16 @@ function getMockHistory(symbol, range) {
   const seed = strSeed(symbol + range + Math.floor(Date.now() / 3600000));
   const rand = seededRand(seed);
   const base = BASE_PRICES[symbol] || (strSeed(symbol) % 400 + 20);
-  const counts = { '1d': 78, '5d': 65, '1mo': 22, '3mo': 65 };
+  const counts = { '1d': 78, '5d': 65, '1mo': 22, '3mo': 65, '10y': 120 };
   const n = counts[range] || 30;
   const data = [];
-  let price = base * (0.94 + rand() * 0.12);
+  let price = range === '10y' ? base * (0.2 + rand() * 0.3) : base * (0.94 + rand() * 0.12);
   const now = new Date();
   for (let i = 0; i < n; i++) {
     const open = parseFloat(price.toFixed(2));
-    const close = parseFloat(Math.max(open + (rand() - 0.48) * price * 0.014, 0.01).toFixed(2));
+    // 10Y: slight upward bias to simulate long-term growth
+    const bias = range === '10y' ? 0.003 : 0;
+    const close = parseFloat(Math.max(open + (rand() - 0.48 + bias) * price * (range === '10y' ? 0.04 : 0.014), 0.01).toFixed(2));
     const high = parseFloat((Math.max(open, close) * (1 + rand() * 0.007)).toFixed(2));
     const low = parseFloat((Math.min(open, close) * (1 - rand() * 0.007)).toFixed(2));
     const volume = Math.floor(rand() * 5e6 + 1e6);
@@ -120,6 +122,10 @@ function getMockHistory(symbol, range) {
       const h = Math.floor(9 + (30 + mins) / 60);
       const m = (30 + mins) % 60;
       label = `${h}:${m.toString().padStart(2, '0')}`;
+    } else if (range === '10y') {
+      const d = new Date(now);
+      d.setMonth(d.getMonth() - (n - i));
+      label = d.toLocaleDateString([], { month: 'short', year: '2-digit' });
     } else {
       const d = new Date(now);
       d.setDate(d.getDate() - (n - i) * (range === '3mo' ? 3 : 1));
@@ -200,19 +206,21 @@ async function fetchHistory(symbol, range) {
   const cached = historyCache[key];
   if (cached && (Date.now() - cached.ts) < HISTORY_TTL) return cached.data;
   try {
-    const intervalMap = { '1d': '5m', '5d': '30m', '1mo': '1d', '3mo': '1d' };
-    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=${intervalMap[range]}&range=${range}`;
+    const intervalMap = { '1d': '5m', '5d': '30m', '1mo': '1d', '3mo': '1d', '10y': '1mo' };
+    const yahooRange = range === '10y' ? 'max' : range;
+    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=${intervalMap[range]}&range=${yahooRange}`;
     const data = await proxyFetch(url);
     const result = data?.chart?.result?.[0];
     if (!result) throw new Error('No history');
     const timestamps = result.timestamp || [];
     const ohlcv = result.indicators?.quote?.[0] || {};
     const adjclose = result.indicators?.adjclose?.[0]?.adjclose || ohlcv.close;
-    const rows = timestamps.map((ts, i) => {
+
+    let rows = timestamps.map((ts, i) => {
       const d = new Date(ts * 1000);
-      const label = range === '1d'
+      const label = (range === '1d')
         ? d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-        : d.toLocaleDateString([], { month: 'short', day: 'numeric' });
+        : d.toLocaleDateString([], { month: 'short', day: 'numeric', year: range === '10y' ? '2-digit' : undefined });
       return {
         date: label,
         open: ohlcv.open?.[i] ?? 0,
@@ -222,6 +230,18 @@ async function fetchHistory(symbol, range) {
         volume: ohlcv.volume?.[i] ?? 0,
       };
     }).filter(d => d.close > 0);
+
+    // For 10Y, trim to last 10 years max
+    if (range === '10y') {
+      const cutoff = Date.now() - 10 * 365.25 * 24 * 3600 * 1000;
+      const cutRows = timestamps
+        .map((ts, i) => ({ ts: ts * 1000, i }))
+        .filter(x => x.ts >= cutoff)
+        .map(x => rows[x.i])
+        .filter(Boolean);
+      if (cutRows.length > 0) rows = cutRows;
+    }
+
     if (rows.length === 0) throw new Error('Empty');
     historyCache[key] = { data: rows, ts: Date.now() };
     return rows;
@@ -338,22 +358,20 @@ function initWatchlistEvents() {
 async function fetchAndUpdateSymbol(symbol) {
   const prev = stockData[symbol];
   const data = await fetchQuote(symbol);
-
-  // Track price direction for flash animation
   if (prev && prev.price !== data.price) {
     prevPrices[symbol] = { price: prev.price, dir: data.price > prev.price ? 'up' : 'down' };
   }
-
   stockData[symbol] = data;
   renderWatchlist();
   flashPriceCard(symbol, prevPrices[symbol]?.dir);
-
   const triggered = AlertManager.check(symbol, data.price);
   triggered.forEach(a => {
     toast(`🔔 ${symbol} ${a.condition} $${a.price.toFixed(2)} — now $${data.price.toFixed(2)}`, 'warning', 8000);
     AlertManager.render();
   });
   if (selectedSymbol === symbol) updateChartSubtitle(data);
+  // Re-score after every quote update
+  Suggester.render(stockData, historyCache);
 }
 
 function flashPriceCard(symbol, dir) {
@@ -381,23 +399,28 @@ function selectSymbol(symbol) {
 async function loadChart(symbol, range) {
   const loadingFor = symbol;
 
-  // Update header immediately
   document.getElementById('chartTitle').textContent = symbol;
   document.getElementById('chartSubtitle').textContent = '';
   document.getElementById('chartPlaceholder').classList.add('hidden');
 
-  const key = `${symbol}_${range}`;
+  // Hide growth badge unless 10Y
+  const badge = document.getElementById('growthBadge');
+  if (badge && range !== '10y') badge.style.display = 'none';
 
-  // If we have cached data, render it right now — no waiting
+  const key = `${symbol}_${range}`;
+  const renderFn = (rows) => {
+    if (range === '10y') ChartManager.renderGrowth(symbol, rows);
+    else ChartManager.render(symbol, rows, ChartManager.getType());
+  };
+
   if (historyCache[key]) {
-    ChartManager.render(symbol, historyCache[key].data, ChartManager.getType());
+    renderFn(historyCache[key].data);
     const d = stockData[symbol];
     if (d) updateChartSubtitle(d);
-    // Still fetch in background to refresh if stale
     if ((Date.now() - historyCache[key].ts) >= HISTORY_TTL) {
       fetchHistory(symbol, range).then(rows => {
         if (selectedSymbol !== loadingFor) return;
-        ChartManager.render(symbol, rows, ChartManager.getType());
+        renderFn(rows);
         const d2 = stockData[symbol];
         if (d2) updateChartSubtitle(d2);
       });
@@ -405,11 +428,10 @@ async function loadChart(symbol, range) {
     return;
   }
 
-  // No cache — show spinner text and fetch
   document.getElementById('chartSubtitle').textContent = 'Loading chart...';
   const rows = await fetchHistory(symbol, range);
-  if (selectedSymbol !== loadingFor) return; // user switched away
-  ChartManager.render(symbol, rows, ChartManager.getType());
+  if (selectedSymbol !== loadingFor) return;
+  renderFn(rows);
   const d = stockData[symbol];
   if (d) updateChartSubtitle(d);
   else document.getElementById('chartSubtitle').textContent = '';
@@ -518,12 +540,11 @@ function initChartControls() {
       const type = btn.dataset.type;
       ChartManager.setType(type);
       if (!selectedSymbol) return;
+      // 10Y always uses growth renderer regardless of chart type
+      if (selectedRange === '10y') { loadChart(selectedSymbol, '10y'); return; }
       const cached = historyCache[`${selectedSymbol}_${selectedRange}`];
-      if (cached) {
-        ChartManager.render(selectedSymbol, cached.data, type);
-      } else {
-        loadChart(selectedSymbol, selectedRange);
-      }
+      if (cached) ChartManager.render(selectedSymbol, cached.data, type);
+      else loadChart(selectedSymbol, selectedRange);
     });
   });
 

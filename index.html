@@ -47,6 +47,14 @@
         <button class="btn-primary" id="confirmAdd">Add</button>
         <button class="btn-ghost" id="cancelAdd">Cancel</button>
       </div>
+      <!-- Best Pick Suggestion -->
+      <div class="best-pick" id="bestPick" style="display:none">
+        <div class="best-pick-header">
+          <span class="best-pick-label">🏆 Best Pick</span>
+          <span class="best-pick-reason" id="bestPickReason"></span>
+        </div>
+        <div class="best-pick-body" id="bestPickBody"></div>
+      </div>
       <div class="watchlist" id="watchlist">
         <div class="empty-state" id="emptyState">
           <p>No stocks added yet.</p>
@@ -61,6 +69,7 @@
         <div class="chart-title-group">
           <h2 id="chartTitle">Select a stock</h2>
           <span class="chart-subtitle" id="chartSubtitle"></span>
+          <span class="growth-badge" id="growthBadge" style="display:none"></span>
         </div>
         <div class="chart-controls">
           <div class="chart-type-btns">
@@ -73,6 +82,7 @@
             <button class="range-btn" data-range="5d">5D</button>
             <button class="range-btn" data-range="1mo">1M</button>
             <button class="range-btn" data-range="3mo">3M</button>
+            <button class="range-btn" data-range="10y">10Y</button>
           </div>
         </div>
       </div>
@@ -117,6 +127,7 @@
   </footer>
 
   <script src="alerts.js"></script>
+  <script src="suggest.js"></script>
   <script src="charts.js"></script>
   <script src="app.js"></script>
 </body>

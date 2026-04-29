@@ -8,7 +8,6 @@ const ChartManager = (() => {
   }
 
   function yAxisBounds(data) {
-    // Tight Y-axis: pad 2% above/below the high/low range so candles fill the chart
     const allVals = data.flatMap(d => [d.high, d.low, d.open, d.close]).filter(v => v > 0);
     const min = Math.min(...allVals);
     const max = Math.max(...allVals);
@@ -77,7 +76,6 @@ const ChartManager = (() => {
     const labels = data.map(d => d.date);
     const closes = data.map(d => d.close);
     const volumes = data.map(d => d.volume);
-
     const isUp = closes[closes.length - 1] >= closes[0];
     const mainColor = isUp ? '#26c281' : '#e74c3c';
 
@@ -106,7 +104,6 @@ const ChartManager = (() => {
       });
 
     } else if (type === 'bar') {
-      // Volume bar chart — Y-axis shows volume, not price
       chart = new Chart(ctx, {
         type: 'bar',
         data: {
@@ -132,12 +129,8 @@ const ChartManager = (() => {
     } else if (type === 'candlestick') {
       const upColor = 'rgba(38,194,129,0.9)';
       const downColor = 'rgba(231,76,60,0.9)';
-      const upBorder = '#26c281';
-      const downBorder = '#e74c3c';
-
       const colors = data.map(d => d.close >= d.open ? upColor : downColor);
-      const borders = data.map(d => d.close >= d.open ? upBorder : downBorder);
-
+      const borders = data.map(d => d.close >= d.open ? '#26c281' : '#e74c3c');
       const opts = baseOptions(data, tv);
 
       chart = new Chart(ctx, {
@@ -146,7 +139,6 @@ const ChartManager = (() => {
           labels,
           datasets: [
             {
-              // Wick: full high-low range, very thin
               label: 'Wick',
               data: data.map(d => [d.low, d.high]),
               backgroundColor: colors,
@@ -157,7 +149,6 @@ const ChartManager = (() => {
               order: 2,
             },
             {
-              // Body: open-close range, wider
               label: 'Body',
               data: data.map(d => [
                 parseFloat(Math.min(d.open, d.close).toFixed(2)),
@@ -179,19 +170,13 @@ const ChartManager = (() => {
             tooltip: {
               ...opts.plugins.tooltip,
               callbacks: {
-                title: (items) => labels[items[0].dataIndex],
-                label: (item) => {
+                title: items => labels[items[0].dataIndex],
+                label: item => {
                   const d = data[item.dataIndex];
                   if (!d) return '';
-                  return [
-                    `O: $${d.open.toFixed(2)}`,
-                    `H: $${d.high.toFixed(2)}`,
-                    `L: $${d.low.toFixed(2)}`,
-                    `C: $${d.close.toFixed(2)}`,
-                  ];
+                  return [`O: $${d.open.toFixed(2)}`, `H: $${d.high.toFixed(2)}`, `L: $${d.low.toFixed(2)}`, `C: $${d.close.toFixed(2)}`];
                 },
-                // Only show tooltip once (not twice for 2 datasets)
-                filter: (item) => item.datasetIndex === 1,
+                filter: item => item.datasetIndex === 1,
               },
             },
           },
@@ -200,8 +185,124 @@ const ChartManager = (() => {
     }
   }
 
+  // ===== 10-Year growth chart =====
+  function renderGrowth(symbol, data) {
+    if (!data || data.length === 0) return;
+    destroy();
+
+    const canvas = document.getElementById('stockChart');
+    const ctx = canvas.getContext('2d');
+    document.getElementById('chartPlaceholder').classList.add('hidden');
+
+    const tv = themeVars();
+    const labels = data.map(d => d.date);
+    const closes = data.map(d => d.close);
+    const startPrice = closes[0];
+    const endPrice = closes[closes.length - 1];
+    const totalGrowth = ((endPrice - startPrice) / startPrice) * 100;
+    const isUp = totalGrowth >= 0;
+    const mainColor = isUp ? '#26c281' : '#e74c3c';
+
+    // Convert to % growth from start
+    const growthPct = closes.map(c => parseFloat(((c - startPrice) / startPrice * 100).toFixed(2)));
+
+    // Update growth badge
+    const badge = document.getElementById('growthBadge');
+    if (badge) {
+      const years = data.length > 0
+        ? Math.round((data.length) / 12 * 10) / 10
+        : 10;
+      badge.style.display = 'inline-flex';
+      badge.className = `growth-badge ${isUp ? 'up' : 'down'}`;
+      badge.textContent = `${isUp ? '▲' : '▼'} ${Math.abs(totalGrowth).toFixed(1)}% over ${years}Y`;
+    }
+
+    const gradient = ctx.createLinearGradient(0, 0, 0, canvas.offsetHeight || 400);
+    gradient.addColorStop(0, isUp ? 'rgba(38,194,129,0.3)' : 'rgba(231,76,60,0.3)');
+    gradient.addColorStop(1, 'rgba(0,0,0,0)');
+
+    // Zero line annotation
+    const zeroLinePlugin = {
+      id: 'zeroLine',
+      afterDraw(chart) {
+        const { ctx, scales: { y, x } } = chart;
+        if (!y || !x) return;
+        const yZero = y.getPixelForValue(0);
+        ctx.save();
+        ctx.beginPath();
+        ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([6, 4]);
+        ctx.moveTo(x.left, yZero);
+        ctx.lineTo(x.right, yZero);
+        ctx.stroke();
+        ctx.restore();
+      },
+    };
+
+    const allVals = growthPct.filter(v => isFinite(v));
+    const minV = Math.min(...allVals);
+    const maxV = Math.max(...allVals);
+    const pad = (maxV - minV) * 0.1 || 5;
+
+    chart = new Chart(ctx, {
+      type: 'line',
+      plugins: [zeroLinePlugin],
+      data: {
+        labels,
+        datasets: [{
+          label: `${symbol} Growth %`,
+          data: growthPct,
+          borderColor: mainColor,
+          backgroundColor: gradient,
+          borderWidth: 2.5,
+          pointRadius: 0,
+          pointHoverRadius: 5,
+          fill: true,
+          tension: 0.3,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: { duration: 400 },
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: tv.tooltipBg,
+            titleColor: tv.tooltipTitle,
+            bodyColor: tv.tooltipBody,
+            borderColor: tv.tooltipBorder,
+            borderWidth: 1,
+            padding: 10,
+            callbacks: {
+              label: item => `Growth: ${item.raw >= 0 ? '+' : ''}${item.raw}%  ($${closes[item.dataIndex].toFixed(2)})`,
+            },
+          },
+        },
+        scales: {
+          x: {
+            ticks: { color: tv.textColor, maxTicksLimit: 12, maxRotation: 0 },
+            grid: { color: tv.gridColor },
+          },
+          y: {
+            min: parseFloat((minV - pad).toFixed(1)),
+            max: parseFloat((maxV + pad).toFixed(1)),
+            position: 'right',
+            ticks: {
+              color: tv.textColor,
+              callback: v => (v >= 0 ? '+' : '') + v.toFixed(0) + '%',
+            },
+            grid: { color: tv.gridColor },
+          },
+        },
+      },
+    });
+  }
+
   function setType(type) { currentType = type; }
   function getType() { return currentType; }
 
-  return { render, destroy, setType, getType };
+  return { render, renderGrowth, destroy, setType, getType };
 })();
