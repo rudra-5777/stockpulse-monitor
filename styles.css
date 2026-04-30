@@ -978,34 +978,3 @@ body {
   color: #fff;
 }
 .mkt-btn:not(.active):hover { background: var(--border); color: var(--text); }
-
-/* ===== Chart-based analysis metrics ===== */
-.idea-profit-badge {
-  font-size: 0.82rem; font-weight: 700;
-  padding: 2px 8px; border-radius: 10px;
-}
-.idea-profit-badge.up   { background: rgba(38,194,129,0.15); color: #26c281; }
-.idea-profit-badge.down { background: rgba(231,76,60,0.15);  color: #e74c3c; }
-
-.idea-metrics {
-  display: flex; flex-wrap: wrap; gap: 4px; margin: 2px 0;
-}
-.im-item {
-  font-size: 0.68rem; font-weight: 600;
-  padding: 1px 6px; border-radius: 8px;
-  background: var(--bg); border: 1px solid var(--border);
-}
-.im-item.up      { color: #26c281; border-color: rgba(38,194,129,0.3); }
-.im-item.down    { color: #e74c3c; border-color: rgba(231,76,60,0.3);  }
-.im-item.neutral { color: var(--text2); }
-
-.sector-return {
-  font-size: 0.75rem; font-weight: 700; margin: 2px 0;
-}
-.sector-return.up   { color: #26c281; }
-.sector-return.down { color: #e74c3c; }
-
-/* Wider column for 3M + 1W in full list */
-.ideas-row {
-  grid-template-columns: 48px 1fr 68px 72px 60px 70px 76px 26px !important;
-}
