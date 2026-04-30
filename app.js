@@ -620,7 +620,8 @@ function init() {
   initAlerts();
   initChartControls();
   initAddForm();
-  initWatchlistEvents(); // ONE delegated listener, never re-attached
+  initWatchlistEvents();
+  InvestmentIdeas.init();
   AlertManager.updateSymbolSelect(watchlist);
   renderWatchlist();
   startRefresh();

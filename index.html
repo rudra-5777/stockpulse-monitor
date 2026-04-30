@@ -31,6 +31,7 @@
         <div class="search-dropdown" id="searchDropdown"></div>
       </div>
       <button class="btn-icon" id="themeToggle" title="Toggle theme">🌙</button>
+      <button class="btn-icon ideas-btn-header" id="ideasBtn" title="Investment Ideas">💡 Ideas</button>
       <button class="btn-icon" id="alertsBtn" title="Alerts">🔔 <span class="badge" id="alertCount">0</span></button>
     </div>
   </header>
@@ -91,6 +92,23 @@
         <div class="chart-placeholder" id="chartPlaceholder">
           <span>📊</span>
           <p>Click a stock to view its chart</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Investment Ideas Panel -->
+    <section class="ideas-panel" id="ideasPanel">
+      <div class="panel-header">
+        <div>
+          <h2>💡 Investment Ideas</h2>
+          <span style="font-size:0.75rem;color:var(--text2)">Live analysis of 40 stocks across 8 sectors</span>
+        </div>
+        <button class="btn-icon close-btn" id="closeIdeas">✕</button>
+      </div>
+      <div class="ideas-body" id="ideasBody">
+        <div class="ideas-loading">
+          <div class="ideas-spinner"></div>
+          <p>Loading investment ideas…</p>
         </div>
       </div>
     </section>
