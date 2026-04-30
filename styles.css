@@ -950,3 +950,31 @@ body {
   .ideas-row { grid-template-columns: 44px 1fr 60px 50px 28px; }
   .ir-vol, .ir-bar-wrap, .ir-rating { display: none; }
 }
+
+/* ===== Market Toggle (US / India) ===== */
+.ideas-market-toggle {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.85rem;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 4px;
+}
+.mkt-btn {
+  flex: 1;
+  padding: 0.4rem 0.75rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  background: transparent;
+  color: var(--text2);
+  transition: background 0.2s, color 0.2s;
+}
+.mkt-btn.active {
+  background: var(--accent);
+  color: #fff;
+}
+.mkt-btn:not(.active):hover { background: var(--border); color: var(--text); }
