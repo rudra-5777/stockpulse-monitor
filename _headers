@@ -18,7 +18,7 @@
   # - connect: self + Yahoo Finance proxy origins for live data
   # - img/font: self + data URIs
   # - frame/object: none
-  Content-Security-Policy: default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; connect-src 'self' https://corsproxy.io https://api.allorigins.win https://query1.finance.yahoo.com https://query2.finance.yahoo.com https://registry.npmjs.org; img-src 'self' data:; font-src 'self' data:; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'
+  Content-Security-Policy: default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; connect-src 'self' https://stockpulse-monitor.netlify.app; img-src 'self' data:; font-src 'self' data:; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'
 
   # HSTS — enforce HTTPS (Netlify serves over HTTPS by default)
   Strict-Transport-Security: max-age=31536000; includeSubDomains; preload

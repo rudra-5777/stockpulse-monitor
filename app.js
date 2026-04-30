@@ -156,95 +156,35 @@ function getMockQuote(symbol) {
   };
 }
 
-// ===== API =====
-async function proxyFetch(yahooUrl) {
-  const proxies = [
-    `https://corsproxy.io/?${encodeURIComponent(yahooUrl)}`,
-    `https://api.allorigins.win/get?url=${encodeURIComponent(yahooUrl)}`,
-  ];
-  for (const proxy of proxies) {
-    try {
-      const res = await fetch(proxy, { signal: AbortSignal.timeout(7000) });
-      if (!res.ok) continue;
-      const text = await res.text();
-      const json = JSON.parse(text);
-      if (json.contents) return JSON.parse(json.contents);
-      return json;
-    } catch { continue; }
-  }
-  throw new Error('All proxies failed');
-}
+// ===== API — uses Netlify serverless functions (no CORS issues) =====
+const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? 'https://stockpulse-monitor.netlify.app/.netlify/functions'
+  : '/.netlify/functions';
 
 async function fetchQuote(symbol) {
   try {
-    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=1d`;
-    const data = await proxyFetch(url);
-    const result = data?.chart?.result?.[0];
-    if (!result) throw new Error('No data');
-    const meta = result.meta;
-    const price = meta.regularMarketPrice;
-    const prevClose = meta.chartPreviousClose || meta.previousClose || price;
-    return {
-      symbol,
-      name: meta.longName || meta.shortName || symbol,
-      price,
-      prevClose,
-      change: parseFloat((price - prevClose).toFixed(2)),
-      changePct: parseFloat(((price - prevClose) / prevClose * 100).toFixed(2)),
-      volume: meta.regularMarketVolume || 0,
-      dayHigh: meta.regularMarketDayHigh || price,
-      dayLow: meta.regularMarketDayLow || price,
-      isMock: false,
-    };
+    const res  = await fetch(`${API_BASE}/quote?symbols=${encodeURIComponent(symbol)}`, { signal: AbortSignal.timeout(8000) });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    const q    = data[symbol];
+    if (!q || q.error) throw new Error(q?.error || 'No data');
+    return { ...q, isMock: false };
   } catch {
     return getMockQuote(symbol);
   }
 }
 
 async function fetchHistory(symbol, range) {
-  const key = `${symbol}_${range}`;
+  const key    = `${symbol}_${range}`;
   const cached = historyCache[key];
   if (cached && (Date.now() - cached.ts) < HISTORY_TTL) return cached.data;
   try {
-    const intervalMap = { '1d': '5m', '5d': '30m', '1mo': '1d', '3mo': '1d', '10y': '1mo' };
-    const yahooRange = range === '10y' ? 'max' : range;
-    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=${intervalMap[range]}&range=${yahooRange}`;
-    const data = await proxyFetch(url);
-    const result = data?.chart?.result?.[0];
-    if (!result) throw new Error('No history');
-    const timestamps = result.timestamp || [];
-    const ohlcv = result.indicators?.quote?.[0] || {};
-    const adjclose = result.indicators?.adjclose?.[0]?.adjclose || ohlcv.close;
-
-    let rows = timestamps.map((ts, i) => {
-      const d = new Date(ts * 1000);
-      const label = (range === '1d')
-        ? d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-        : d.toLocaleDateString([], { month: 'short', day: 'numeric', year: range === '10y' ? '2-digit' : undefined });
-      return {
-        date: label,
-        open: ohlcv.open?.[i] ?? 0,
-        high: ohlcv.high?.[i] ?? 0,
-        low: ohlcv.low?.[i] ?? 0,
-        close: adjclose?.[i] ?? ohlcv.close?.[i] ?? 0,
-        volume: ohlcv.volume?.[i] ?? 0,
-      };
-    }).filter(d => d.close > 0);
-
-    // For 10Y, trim to last 10 years max
-    if (range === '10y') {
-      const cutoff = Date.now() - 10 * 365.25 * 24 * 3600 * 1000;
-      const cutRows = timestamps
-        .map((ts, i) => ({ ts: ts * 1000, i }))
-        .filter(x => x.ts >= cutoff)
-        .map(x => rows[x.i])
-        .filter(Boolean);
-      if (cutRows.length > 0) rows = cutRows;
-    }
-
-    if (rows.length === 0) throw new Error('Empty');
-    historyCache[key] = { data: rows, ts: Date.now() };
-    return rows;
+    const res = await fetch(`${API_BASE}/history?symbol=${encodeURIComponent(symbol)}&range=${range}`, { signal: AbortSignal.timeout(10000) });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const json = await res.json();
+    if (json.error || !json.rows?.length) throw new Error(json.error || 'Empty');
+    historyCache[key] = { data: json.rows, ts: Date.now() };
+    return json.rows;
   } catch {
     const mock = getMockHistory(symbol, range);
     historyCache[key] = { data: mock, ts: Date.now() };

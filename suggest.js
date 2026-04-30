@@ -276,28 +276,15 @@ const InvestmentIdeas = (() => {
     for (const batch of batches) {
       await Promise.allSettled(batch.map(async ({ symbol, name, sector }) => {
         try {
-          const url   = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=1d`;
-          const proxy = `https://corsproxy.io/?${encodeURIComponent(url)}`;
-          const res   = await fetch(proxy, { signal: AbortSignal.timeout(6000) });
+          const apiBase = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+            ? 'https://stockpulse-monitor.netlify.app/.netlify/functions'
+            : '/.netlify/functions';
+          const res = await fetch(`${apiBase}/quote?symbols=${encodeURIComponent(symbol)}`, { signal: AbortSignal.timeout(8000) });
           if (!res.ok) throw new Error('bad');
-          const json  = JSON.parse(await res.text());
-          const result = json?.chart?.result?.[0];
-          if (!result) throw new Error('no result');
-          const meta = result.meta;
-          const price = meta.regularMarketPrice;
-          const prev  = meta.chartPreviousClose || meta.previousClose || price;
-          ideaData[symbol] = {
-            symbol, name, sector,
-            price,
-            prevClose:  prev,
-            change:     parseFloat((price - prev).toFixed(2)),
-            changePct:  parseFloat(((price - prev) / prev * 100).toFixed(2)),
-            volume:     meta.regularMarketVolume || 0,
-            dayHigh:    meta.regularMarketDayHigh || price,
-            dayLow:     meta.regularMarketDayLow  || price,
-            currency:   meta.currency || 'USD',
-            isMock: false,
-          };
+          const data = await res.json();
+          const q = data[symbol];
+          if (!q || q.error) throw new Error(q?.error || 'no data');
+          ideaData[symbol] = { ...q, sector, isMock: false };
         } catch {
           if (typeof getMockQuote === 'function') {
             const m = getMockQuote(symbol);
