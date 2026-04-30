@@ -409,7 +409,7 @@ async function loadChart(symbol, range) {
 
   const key = `${symbol}_${range}`;
   const renderFn = (rows) => {
-    if (range === '10y') ChartManager.renderGrowth(symbol, rows);
+    if (range === '10y') ChartManager.renderGrowth(symbol, rows, ChartManager.getType());
     else ChartManager.render(symbol, rows, ChartManager.getType());
   };
 
@@ -540,11 +540,14 @@ function initChartControls() {
       const type = btn.dataset.type;
       ChartManager.setType(type);
       if (!selectedSymbol) return;
-      // 10Y always uses growth renderer regardless of chart type
-      if (selectedRange === '10y') { loadChart(selectedSymbol, '10y'); return; }
+      // 10Y supports all three chart types via renderGrowth
       const cached = historyCache[`${selectedSymbol}_${selectedRange}`];
-      if (cached) ChartManager.render(selectedSymbol, cached.data, type);
-      else loadChart(selectedSymbol, selectedRange);
+      if (cached) {
+        if (selectedRange === '10y') ChartManager.renderGrowth(selectedSymbol, cached.data, type);
+        else ChartManager.render(selectedSymbol, cached.data, type);
+      } else {
+        loadChart(selectedSymbol, selectedRange);
+      }
     });
   });
 
