@@ -56,7 +56,52 @@ const ForecastPanel = (() => {
     const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
 
     const html = `
+      <!-- Investment Verdict — shown first, most prominent -->
+      ${d.investmentVerdict ? (() => {
+        const v = d.investmentVerdict;
+        return `<div class="fc-verdict" style="background:${v.verdictBg};border:2px solid ${v.verdictColor}44">
+          <div class="fc-verdict-top">
+            <div class="fc-verdict-left">
+              <span class="fc-verdict-emoji">${v.verdictEmoji}</span>
+              <div>
+                <div class="fc-verdict-label">Investment Verdict</div>
+                <div class="fc-verdict-name" style="color:${v.verdictColor}">${v.verdict}</div>
+              </div>
+            </div>
+            <div class="fc-verdict-score-wrap">
+              <svg class="fc-score-ring" viewBox="0 0 60 60">
+                <circle cx="30" cy="30" r="24" fill="none" stroke="var(--border)" stroke-width="5"/>
+                <circle cx="30" cy="30" r="24" fill="none" stroke="${v.verdictColor}" stroke-width="5"
+                  stroke-dasharray="${(v.verdictScore / 100) * 150.8} 150.8"
+                  stroke-dashoffset="37.7" stroke-linecap="round"/>
+                <text x="30" y="35" text-anchor="middle" fill="${v.verdictColor}" font-size="13" font-weight="800">${v.verdictScore}</text>
+              </svg>
+              <span class="fc-score-label">/ 100</span>
+            </div>
+          </div>
+          <p class="fc-verdict-summary">${v.verdictSummary}</p>
+          <div class="fc-verdict-factors">
+            ${v.verdictFactors.map(f => `
+              <div class="fc-vf-row">
+                <span class="fc-vf-dot" style="background:${f.positive === true ? '#26c281' : f.positive === false ? '#e74c3c' : '#f39c12'}"></span>
+                <span class="fc-vf-text">${f.text}</span>
+              </div>`).join('')}
+          </div>
+          <div class="fc-verdict-actions">
+            <div class="fc-va-item">
+              <span class="fc-va-label">⏰ Best Time to Invest</span>
+              <span class="fc-va-val">${v.bestTimeToInvest}</span>
+            </div>
+            <div class="fc-va-item">
+              <span class="fc-va-label">📋 Suggested Strategy</span>
+              <span class="fc-va-val">${v.suggestedStrategy}</span>
+            </div>
+          </div>
+        </div>`;
+      })() : ''}
+
       <!-- Header -->
+      <div class="fc-header">
       <div class="fc-header">
         <div class="fc-title-group">
           <h3 class="fc-sym">${d.symbol.replace('.NS','').replace('.BO','')}</h3>

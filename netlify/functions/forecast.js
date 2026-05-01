@@ -165,6 +165,100 @@ function buildForecast(symbol, name, currency, rows) {
   if (trendStrength > 0.5) insights.push({ icon:'📐', text:'Strong upward price trend (regression analysis)' });
   else if (trendStrength < -0.5) insights.push({ icon:'📐', text:'Downward price trend detected' });
 
+  // ── Investment Verdict ────────────────────────────────────────────────────
+  // Score 0–100 across 6 dimensions, weighted
+  let verdictScore = 0;
+  const verdictFactors = [];
+
+  // 1. Historical growth (25 pts)
+  if      (histCAGR >= 25) { verdictScore += 25; verdictFactors.push({ positive: true,  text: `Exceptional historical growth (${histCAGR.toFixed(1)}% CAGR)` }); }
+  else if (histCAGR >= 15) { verdictScore += 20; verdictFactors.push({ positive: true,  text: `Strong historical growth (${histCAGR.toFixed(1)}% CAGR)` }); }
+  else if (histCAGR >= 8)  { verdictScore += 14; verdictFactors.push({ positive: true,  text: `Solid historical growth (${histCAGR.toFixed(1)}% CAGR)` }); }
+  else if (histCAGR >= 3)  { verdictScore += 8;  verdictFactors.push({ positive: null,  text: `Modest historical growth (${histCAGR.toFixed(1)}% CAGR)` }); }
+  else if (histCAGR >= 0)  { verdictScore += 3;  verdictFactors.push({ positive: null,  text: `Flat historical performance (${histCAGR.toFixed(1)}% CAGR)` }); }
+  else                     { verdictScore += 0;  verdictFactors.push({ positive: false, text: `Negative historical trend (${histCAGR.toFixed(1)}% CAGR)` }); }
+
+  // 2. Risk-adjusted return / Sharpe (20 pts)
+  if      (sharpe >= 1.5) { verdictScore += 20; verdictFactors.push({ positive: true,  text: `Excellent risk-adjusted returns (Sharpe ${sharpe.toFixed(2)})` }); }
+  else if (sharpe >= 1.0) { verdictScore += 16; verdictFactors.push({ positive: true,  text: `Good risk-adjusted returns (Sharpe ${sharpe.toFixed(2)})` }); }
+  else if (sharpe >= 0.5) { verdictScore += 10; verdictFactors.push({ positive: true,  text: `Acceptable risk-adjusted returns (Sharpe ${sharpe.toFixed(2)})` }); }
+  else if (sharpe >= 0)   { verdictScore += 5;  verdictFactors.push({ positive: null,  text: `Below-average risk-adjusted returns (Sharpe ${sharpe.toFixed(2)})` }); }
+  else                    { verdictScore += 0;  verdictFactors.push({ positive: false, text: `Poor risk-adjusted returns (Sharpe ${sharpe.toFixed(2)}) — not worth the risk` }); }
+
+  // 3. Base-case 5Y projected return (20 pts)
+  const proj5Y = projections[4].baseRet;
+  if      (proj5Y >= 100) { verdictScore += 20; verdictFactors.push({ positive: true,  text: `Base case projects +${proj5Y.toFixed(0)}% over 5 years (doubles your money)` }); }
+  else if (proj5Y >= 50)  { verdictScore += 16; verdictFactors.push({ positive: true,  text: `Base case projects +${proj5Y.toFixed(0)}% over 5 years` }); }
+  else if (proj5Y >= 20)  { verdictScore += 10; verdictFactors.push({ positive: true,  text: `Base case projects +${proj5Y.toFixed(0)}% over 5 years` }); }
+  else if (proj5Y >= 0)   { verdictScore += 5;  verdictFactors.push({ positive: null,  text: `Base case projects only +${proj5Y.toFixed(0)}% over 5 years — modest upside` }); }
+  else                    { verdictScore += 0;  verdictFactors.push({ positive: false, text: `Base case projects ${proj5Y.toFixed(0)}% over 5 years — potential loss` }); }
+
+  // 4. Downside risk / max drawdown (15 pts)
+  if      (maxDD <= 15) { verdictScore += 15; verdictFactors.push({ positive: true,  text: `Low historical drawdown (${maxDD.toFixed(1)}%) — capital well protected` }); }
+  else if (maxDD <= 30) { verdictScore += 10; verdictFactors.push({ positive: true,  text: `Manageable drawdown risk (${maxDD.toFixed(1)}% max)` }); }
+  else if (maxDD <= 50) { verdictScore += 5;  verdictFactors.push({ positive: null,  text: `Significant drawdown risk (${maxDD.toFixed(1)}% max) — be prepared for dips` }); }
+  else                  { verdictScore += 0;  verdictFactors.push({ positive: false, text: `Very high drawdown risk (${maxDD.toFixed(1)}% max) — could lose half your investment` }); }
+
+  // 5. Trend momentum (10 pts)
+  if      (trendStrength >= 0.5) { verdictScore += 10; verdictFactors.push({ positive: true,  text: 'Strong upward price trend — momentum is in your favour' }); }
+  else if (trendStrength >= 0.1) { verdictScore += 7;  verdictFactors.push({ positive: true,  text: 'Positive price trend' }); }
+  else if (trendStrength >= -0.1){ verdictScore += 4;  verdictFactors.push({ positive: null,  text: 'Sideways trend — no clear direction' }); }
+  else                           { verdictScore += 0;  verdictFactors.push({ positive: false, text: 'Downward price trend — caution advised' }); }
+
+  // 6. Consistency (10 pts) — how many years were profitable
+  const profitableYears = annRetArr.filter(r => r > 0).length;
+  const consistencyPct  = annRetArr.length > 0 ? (profitableYears / annRetArr.length) * 100 : 50;
+  if      (consistencyPct >= 80) { verdictScore += 10; verdictFactors.push({ positive: true,  text: `Highly consistent — profitable ${profitableYears}/${annRetArr.length} years` }); }
+  else if (consistencyPct >= 60) { verdictScore += 7;  verdictFactors.push({ positive: true,  text: `Mostly consistent — profitable ${profitableYears}/${annRetArr.length} years` }); }
+  else if (consistencyPct >= 40) { verdictScore += 3;  verdictFactors.push({ positive: null,  text: `Mixed consistency — profitable ${profitableYears}/${annRetArr.length} years` }); }
+  else                           { verdictScore += 0;  verdictFactors.push({ positive: false, text: `Poor consistency — profitable only ${profitableYears}/${annRetArr.length} years` }); }
+
+  verdictScore = Math.min(100, Math.round(verdictScore));
+
+  let verdict, verdictColor, verdictBg, verdictEmoji, verdictSummary;
+  if      (verdictScore >= 80) {
+    verdict = 'Strong Buy';       verdictColor = '#26c281'; verdictBg = 'rgba(38,194,129,0.12)';
+    verdictEmoji = '🟢';
+    verdictSummary = 'This stock shows excellent fundamentals across all metrics. Historical growth, risk-adjusted returns, and projected upside all point to a strong investment opportunity. Suitable for most investors with a 5-year horizon.';
+  } else if (verdictScore >= 65) {
+    verdict = 'Buy';              verdictColor = '#52d68a'; verdictBg = 'rgba(82,214,138,0.10)';
+    verdictEmoji = '🟢';
+    verdictSummary = 'Good investment opportunity with solid historical performance and positive outlook. Minor concerns exist but the risk-reward balance is favourable for long-term investors.';
+  } else if (verdictScore >= 50) {
+    verdict = 'Cautious Buy';     verdictColor = '#f39c12'; verdictBg = 'rgba(243,156,18,0.10)';
+    verdictEmoji = '🟡';
+    verdictSummary = 'Decent potential but with notable risks. Consider investing a smaller position and monitor closely. Best suited for investors who can tolerate moderate volatility.';
+  } else if (verdictScore >= 35) {
+    verdict = 'Hold / Wait';      verdictColor = '#e67e22'; verdictBg = 'rgba(230,126,34,0.10)';
+    verdictEmoji = '🟡';
+    verdictSummary = 'Mixed signals — not the right time to invest heavily. If you already hold this stock, consider holding. New investors should wait for a better entry point or clearer trend.';
+  } else if (verdictScore >= 20) {
+    verdict = 'Avoid';            verdictColor = '#e74c3c'; verdictBg = 'rgba(231,76,60,0.10)';
+    verdictEmoji = '🔴';
+    verdictSummary = 'Poor risk-reward profile. Historical performance is weak and projected returns do not justify the risk. Consider better alternatives.';
+  } else {
+    verdict = 'Strong Avoid';     verdictColor = '#c0392b'; verdictBg = 'rgba(192,57,43,0.10)';
+    verdictEmoji = '🔴';
+    verdictSummary = 'This stock has consistently underperformed and carries high risk. Investing here is likely to result in losses. Strongly consider alternatives.';
+  }
+
+  const investmentVerdict = {
+    verdict, verdictColor, verdictBg, verdictEmoji,
+    verdictScore, verdictSummary, verdictFactors,
+    bestTimeToInvest: trendStrength > 0 && rsiVal < 60
+      ? 'Now looks like a reasonable entry point — trend is up and not overbought'
+      : rsiVal > 75
+      ? 'Currently overbought (RSI ' + rsiVal.toFixed(0) + ') — consider waiting for a pullback'
+      : rsiVal < 35
+      ? 'Oversold (RSI ' + rsiVal.toFixed(0) + ') — potential bounce opportunity for risk-tolerant investors'
+      : 'Monitor for a dip before entering — no urgent signal either way',
+    suggestedStrategy: verdictScore >= 65
+      ? 'Systematic Investment Plan (SIP/DCA) — invest fixed amounts monthly to average your cost'
+      : verdictScore >= 45
+      ? 'Small initial position — invest 25-50% of intended amount now, add more on dips'
+      : 'Paper trade first — track without investing real money until trend improves',
+  };
+
   return {
     symbol, name, currency,
     currentPrice: parseFloat(current.toFixed(2)),
@@ -184,6 +278,7 @@ function buildForecast(symbol, name, currency, rows) {
     riskLevel, riskColor,
     outlook, outlookColor,
     insights,
+    investmentVerdict,
     annualReturnsHistory: annRetArr.slice(-10),
     monthlyClosesLast24: closes.slice(-24).map(c => parseFloat(c.toFixed(2))),
   };
@@ -234,3 +329,5 @@ exports.handler = async (event) => {
 };
 
 // v2
+
+// v3-verdict

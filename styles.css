@@ -1224,3 +1224,70 @@ body {
   .fc-table th:nth-child(3), .fc-table td:nth-child(3),
   .fc-table th:nth-child(5), .fc-table td:nth-child(5) { display: none; }
 }
+
+/* ===== Investment Verdict ===== */
+.fc-verdict {
+  border-radius: var(--radius);
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+.fc-verdict-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+  gap: 1rem;
+}
+.fc-verdict-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.fc-verdict-emoji { font-size: 2rem; line-height: 1; }
+.fc-verdict-label { font-size: 0.72rem; color: var(--text2); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+.fc-verdict-name  { font-size: 1.5rem; font-weight: 900; line-height: 1.1; }
+
+.fc-score-ring { width: 60px; height: 60px; transform: rotate(-90deg); }
+.fc-verdict-score-wrap { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.fc-score-label { font-size: 0.7rem; color: var(--text2); font-weight: 600; }
+
+.fc-verdict-summary {
+  font-size: 0.875rem;
+  color: var(--text);
+  line-height: 1.6;
+  margin: 0 0 0.75rem;
+  padding: 0.6rem 0.75rem;
+  background: rgba(0,0,0,0.15);
+  border-radius: var(--radius-sm);
+}
+[data-theme="light"] .fc-verdict-summary { background: rgba(0,0,0,0.04); }
+
+.fc-verdict-factors {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 0.75rem;
+}
+.fc-vf-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--text);
+}
+.fc-vf-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.fc-verdict-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  border-top: 1px solid var(--border);
+  padding-top: 0.6rem;
+}
+.fc-va-item { display: flex; flex-direction: column; gap: 2px; }
+.fc-va-label { font-size: 0.7rem; font-weight: 700; color: var(--text2); text-transform: uppercase; letter-spacing: 0.04em; }
+.fc-va-val   { font-size: 0.82rem; color: var(--text); line-height: 1.4; }
