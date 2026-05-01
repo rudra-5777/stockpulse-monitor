@@ -1,131 +1,267 @@
-// ===== Stock Suggester & Investment Ideas Engine =====
+﻿// ===== Stock Suggester and Investment Ideas Engine =====
 
-// ─── US Universe ────────────────────────────────────────────────────────────
 const UNIVERSE_US = [
-  { symbol:'AAPL',  name:'Apple Inc.',            sector:'Technology' },
-  { symbol:'MSFT',  name:'Microsoft Corp.',        sector:'Technology' },
-  { symbol:'NVDA',  name:'NVIDIA Corp.',           sector:'Technology' },
-  { symbol:'GOOGL', name:'Alphabet Inc.',          sector:'Technology' },
-  { symbol:'META',  name:'Meta Platforms',         sector:'Technology' },
-  { symbol:'AMD',   name:'Advanced Micro Devices', sector:'Technology' },
-  { symbol:'AVGO',  name:'Broadcom Inc.',          sector:'Technology' },
-  { symbol:'CRM',   name:'Salesforce Inc.',        sector:'Technology' },
-  { symbol:'PLTR',  name:'Palantir Technologies',  sector:'AI & Cloud' },
-  { symbol:'CRWD',  name:'CrowdStrike Holdings',   sector:'AI & Cloud' },
-  { symbol:'SNOW',  name:'Snowflake Inc.',         sector:'AI & Cloud' },
-  { symbol:'NET',   name:'Cloudflare Inc.',        sector:'AI & Cloud' },
-  { symbol:'DDOG',  name:'Datadog Inc.',           sector:'AI & Cloud' },
-  { symbol:'MDB',   name:'MongoDB Inc.',           sector:'AI & Cloud' },
-  { symbol:'AMZN',  name:'Amazon.com Inc.',        sector:'Consumer' },
-  { symbol:'TSLA',  name:'Tesla Inc.',             sector:'Consumer' },
-  { symbol:'SHOP',  name:'Shopify Inc.',           sector:'Consumer' },
-  { symbol:'ABNB',  name:'Airbnb Inc.',            sector:'Consumer' },
-  { symbol:'UBER',  name:'Uber Technologies',      sector:'Consumer' },
-  { symbol:'DASH',  name:'DoorDash Inc.',          sector:'Consumer' },
-  { symbol:'V',     name:'Visa Inc.',              sector:'Finance' },
-  { symbol:'MA',    name:'Mastercard Inc.',        sector:'Finance' },
-  { symbol:'JPM',   name:'JPMorgan Chase',         sector:'Finance' },
-  { symbol:'COIN',  name:'Coinbase Global',        sector:'Finance' },
-  { symbol:'SQ',    name:'Block Inc.',             sector:'Finance' },
-  { symbol:'NFLX',  name:'Netflix Inc.',           sector:'Media' },
-  { symbol:'DIS',   name:'Walt Disney Co.',        sector:'Media' },
-  { symbol:'SPOT',  name:'Spotify Technology',     sector:'Media' },
-  { symbol:'RBLX',  name:'Roblox Corp.',           sector:'Media' },
-  { symbol:'LLY',   name:'Eli Lilly & Co.',        sector:'Healthcare' },
-  { symbol:'UNH',   name:'UnitedHealth Group',     sector:'Healthcare' },
-  { symbol:'ABBV',  name:'AbbVie Inc.',            sector:'Healthcare' },
-  { symbol:'MRNA',  name:'Moderna Inc.',           sector:'Healthcare' },
-  { symbol:'XOM',   name:'Exxon Mobil Corp.',      sector:'Energy' },
-  { symbol:'CVX',   name:'Chevron Corp.',          sector:'Energy' },
-  { symbol:'NEE',   name:'NextEra Energy',         sector:'Energy' },
-  { symbol:'WMT',   name:'Walmart Inc.',           sector:'Defensive' },
-  { symbol:'KO',    name:'Coca-Cola Co.',          sector:'Defensive' },
-  { symbol:'JNJ',   name:'Johnson & Johnson',      sector:'Defensive' },
-  { symbol:'PG',    name:'Procter & Gamble',       sector:'Defensive' },
+  { symbol:'AAPL',  name:'Apple Inc.',                  sector:'Technology' },
+  { symbol:'MSFT',  name:'Microsoft Corp.',              sector:'Technology' },
+  { symbol:'NVDA',  name:'NVIDIA Corp.',                 sector:'Technology' },
+  { symbol:'GOOGL', name:'Alphabet Inc.',                sector:'Technology' },
+  { symbol:'META',  name:'Meta Platforms',               sector:'Technology' },
+  { symbol:'AMD',   name:'Advanced Micro Devices',       sector:'Technology' },
+  { symbol:'AVGO',  name:'Broadcom Inc.',                sector:'Technology' },
+  { symbol:'CRM',   name:'Salesforce Inc.',              sector:'Technology' },
+  { symbol:'ORCL',  name:'Oracle Corp.',                 sector:'Technology' },
+  { symbol:'INTC',  name:'Intel Corp.',                  sector:'Technology' },
+  { symbol:'QCOM',  name:'Qualcomm Inc.',                sector:'Technology' },
+  { symbol:'TXN',   name:'Texas Instruments',            sector:'Technology' },
+  { symbol:'AMAT',  name:'Applied Materials',            sector:'Technology' },
+  { symbol:'LRCX',  name:'Lam Research',                 sector:'Technology' },
+  { symbol:'KLAC',  name:'KLA Corp.',                    sector:'Technology' },
+  { symbol:'MRVL',  name:'Marvell Technology',           sector:'Technology' },
+  { symbol:'ADBE',  name:'Adobe Inc.',                   sector:'Technology' },
+  { symbol:'NOW',   name:'ServiceNow Inc.',              sector:'Technology' },
+  { symbol:'INTU',  name:'Intuit Inc.',                  sector:'Technology' },
+  { symbol:'PANW',  name:'Palo Alto Networks',           sector:'Technology' },
+  { symbol:'PLTR',  name:'Palantir Technologies',        sector:'AI & Cloud' },
+  { symbol:'CRWD',  name:'CrowdStrike Holdings',         sector:'AI & Cloud' },
+  { symbol:'SNOW',  name:'Snowflake Inc.',               sector:'AI & Cloud' },
+  { symbol:'NET',   name:'Cloudflare Inc.',              sector:'AI & Cloud' },
+  { symbol:'DDOG',  name:'Datadog Inc.',                 sector:'AI & Cloud' },
+  { symbol:'MDB',   name:'MongoDB Inc.',                 sector:'AI & Cloud' },
+  { symbol:'OKTA',  name:'Okta Inc.',                    sector:'AI & Cloud' },
+  { symbol:'ZS',    name:'Zscaler Inc.',                 sector:'AI & Cloud' },
+  { symbol:'TWLO',  name:'Twilio Inc.',                  sector:'AI & Cloud' },
+  { symbol:'HUBS',  name:'HubSpot Inc.',                 sector:'AI & Cloud' },
+  { symbol:'WDAY',  name:'Workday Inc.',                 sector:'AI & Cloud' },
+  { symbol:'VEEV',  name:'Veeva Systems',                sector:'AI & Cloud' },
+  { symbol:'DOCN',  name:'DigitalOcean',                 sector:'AI & Cloud' },
+  { symbol:'AMZN',  name:'Amazon.com Inc.',              sector:'Consumer' },
+  { symbol:'TSLA',  name:'Tesla Inc.',                   sector:'Consumer' },
+  { symbol:'SHOP',  name:'Shopify Inc.',                 sector:'Consumer' },
+  { symbol:'ABNB',  name:'Airbnb Inc.',                  sector:'Consumer' },
+  { symbol:'UBER',  name:'Uber Technologies',            sector:'Consumer' },
+  { symbol:'DASH',  name:'DoorDash Inc.',                sector:'Consumer' },
+  { symbol:'LYFT',  name:'Lyft Inc.',                    sector:'Consumer' },
+  { symbol:'BKNG',  name:'Booking Holdings',             sector:'Consumer' },
+  { symbol:'EXPE',  name:'Expedia Group',                sector:'Consumer' },
+  { symbol:'ETSY',  name:'Etsy Inc.',                    sector:'Consumer' },
+  { symbol:'EBAY',  name:'eBay Inc.',                    sector:'Consumer' },
+  { symbol:'NKE',   name:'Nike Inc.',                    sector:'Consumer' },
+  { symbol:'LULU',  name:'Lululemon Athletica',          sector:'Consumer' },
+  { symbol:'SBUX',  name:'Starbucks Corp.',              sector:'Consumer' },
+  { symbol:'MCD',   name:'McDonalds Corp.',              sector:'Consumer' },
+  { symbol:'V',     name:'Visa Inc.',                    sector:'Finance' },
+  { symbol:'MA',    name:'Mastercard Inc.',              sector:'Finance' },
+  { symbol:'JPM',   name:'JPMorgan Chase',               sector:'Finance' },
+  { symbol:'COIN',  name:'Coinbase Global',              sector:'Finance' },
+  { symbol:'SQ',    name:'Block Inc.',                   sector:'Finance' },
+  { symbol:'PYPL',  name:'PayPal Holdings',              sector:'Finance' },
+  { symbol:'GS',    name:'Goldman Sachs',                sector:'Finance' },
+  { symbol:'MS',    name:'Morgan Stanley',               sector:'Finance' },
+  { symbol:'BAC',   name:'Bank of America',              sector:'Finance' },
+  { symbol:'WFC',   name:'Wells Fargo',                  sector:'Finance' },
+  { symbol:'C',     name:'Citigroup Inc.',               sector:'Finance' },
+  { symbol:'AXP',   name:'American Express',             sector:'Finance' },
+  { symbol:'BLK',   name:'BlackRock Inc.',               sector:'Finance' },
+  { symbol:'SCHW',  name:'Charles Schwab',               sector:'Finance' },
+  { symbol:'HOOD',  name:'Robinhood Markets',            sector:'Finance' },
+  { symbol:'NFLX',  name:'Netflix Inc.',                 sector:'Media' },
+  { symbol:'DIS',   name:'Walt Disney Co.',              sector:'Media' },
+  { symbol:'SPOT',  name:'Spotify Technology',           sector:'Media' },
+  { symbol:'RBLX',  name:'Roblox Corp.',                 sector:'Media' },
+  { symbol:'SNAP',  name:'Snap Inc.',                    sector:'Media' },
+  { symbol:'PINS',  name:'Pinterest Inc.',               sector:'Media' },
+  { symbol:'RDDT',  name:'Reddit Inc.',                  sector:'Media' },
+  { symbol:'WBD',   name:'Warner Bros. Discovery',       sector:'Media' },
+  { symbol:'EA',    name:'Electronic Arts',              sector:'Media' },
+  { symbol:'TTWO',  name:'Take-Two Interactive',         sector:'Media' },
+  { symbol:'LLY',   name:'Eli Lilly and Co.',            sector:'Healthcare' },
+  { symbol:'UNH',   name:'UnitedHealth Group',           sector:'Healthcare' },
+  { symbol:'ABBV',  name:'AbbVie Inc.',                  sector:'Healthcare' },
+  { symbol:'MRNA',  name:'Moderna Inc.',                 sector:'Healthcare' },
+  { symbol:'JNJ',   name:'Johnson and Johnson',          sector:'Healthcare' },
+  { symbol:'PFE',   name:'Pfizer Inc.',                  sector:'Healthcare' },
+  { symbol:'MRK',   name:'Merck and Co.',                sector:'Healthcare' },
+  { symbol:'BMY',   name:'Bristol-Myers Squibb',         sector:'Healthcare' },
+  { symbol:'GILD',  name:'Gilead Sciences',              sector:'Healthcare' },
+  { symbol:'REGN',  name:'Regeneron Pharmaceuticals',    sector:'Healthcare' },
+  { symbol:'ISRG',  name:'Intuitive Surgical',           sector:'Healthcare' },
+  { symbol:'TMO',   name:'Thermo Fisher Scientific',     sector:'Healthcare' },
+  { symbol:'DHR',   name:'Danaher Corp.',                sector:'Healthcare' },
+  { symbol:'CVS',   name:'CVS Health Corp.',             sector:'Healthcare' },
+  { symbol:'XOM',   name:'Exxon Mobil Corp.',            sector:'Energy' },
+  { symbol:'CVX',   name:'Chevron Corp.',                sector:'Energy' },
+  { symbol:'NEE',   name:'NextEra Energy',               sector:'Energy' },
+  { symbol:'COP',   name:'ConocoPhillips',               sector:'Energy' },
+  { symbol:'SLB',   name:'Schlumberger Ltd.',            sector:'Energy' },
+  { symbol:'OXY',   name:'Occidental Petroleum',         sector:'Energy' },
+  { symbol:'FSLR',  name:'First Solar Inc.',             sector:'Energy' },
+  { symbol:'ENPH',  name:'Enphase Energy',               sector:'Energy' },
+  { symbol:'WMT',   name:'Walmart Inc.',                 sector:'Defensive' },
+  { symbol:'KO',    name:'Coca-Cola Co.',                sector:'Defensive' },
+  { symbol:'PG',    name:'Procter and Gamble',           sector:'Defensive' },
+  { symbol:'PEP',   name:'PepsiCo Inc.',                 sector:'Defensive' },
+  { symbol:'COST',  name:'Costco Wholesale',             sector:'Defensive' },
+  { symbol:'TGT',   name:'Target Corp.',                 sector:'Defensive' },
+  { symbol:'HD',    name:'Home Depot Inc.',              sector:'Defensive' },
+  { symbol:'LOW',   name:'Lowes Companies',              sector:'Defensive' },
+  { symbol:'CL',    name:'Colgate-Palmolive',            sector:'Defensive' },
+  { symbol:'GIS',   name:'General Mills',                sector:'Defensive' },
+  { symbol:'BA',    name:'Boeing Co.',                   sector:'Industrial' },
+  { symbol:'CAT',   name:'Caterpillar Inc.',             sector:'Industrial' },
+  { symbol:'DE',    name:'Deere and Company',            sector:'Industrial' },
+  { symbol:'GE',    name:'GE Aerospace',                 sector:'Industrial' },
+  { symbol:'HON',   name:'Honeywell International',      sector:'Industrial' },
+  { symbol:'RTX',   name:'RTX Corp.',                    sector:'Industrial' },
+  { symbol:'LMT',   name:'Lockheed Martin',              sector:'Industrial' },
+  { symbol:'UPS',   name:'United Parcel Service',        sector:'Industrial' },
+  { symbol:'FDX',   name:'FedEx Corp.',                  sector:'Industrial' },
+  { symbol:'AMT',   name:'American Tower Corp.',         sector:'Real Estate' },
+  { symbol:'PLD',   name:'Prologis Inc.',                sector:'Real Estate' },
+  { symbol:'EQIX',  name:'Equinix Inc.',                 sector:'Real Estate' },
+  { symbol:'O',     name:'Realty Income Corp.',          sector:'Real Estate' },
 ];
 
-// ─── Indian Universe (NSE via .NS suffix on Yahoo Finance) ──────────────────
 const UNIVERSE_IN = [
-  // IT / Technology
-  { symbol:'TCS.NS',        name:'Tata Consultancy Services', sector:'IT' },
-  { symbol:'INFY.NS',       name:'Infosys Ltd.',              sector:'IT' },
-  { symbol:'WIPRO.NS',      name:'Wipro Ltd.',                sector:'IT' },
-  { symbol:'HCLTECH.NS',    name:'HCL Technologies',          sector:'IT' },
-  { symbol:'TECHM.NS',      name:'Tech Mahindra',             sector:'IT' },
-  { symbol:'LTIM.NS',       name:'LTIMindtree',               sector:'IT' },
-  // Banking & Finance
-  { symbol:'HDFCBANK.NS',   name:'HDFC Bank',                 sector:'Banking' },
-  { symbol:'ICICIBANK.NS',  name:'ICICI Bank',                sector:'Banking' },
-  { symbol:'SBIN.NS',       name:'State Bank of India',       sector:'Banking' },
-  { symbol:'KOTAKBANK.NS',  name:'Kotak Mahindra Bank',       sector:'Banking' },
-  { symbol:'AXISBANK.NS',   name:'Axis Bank',                 sector:'Banking' },
-  { symbol:'BAJFINANCE.NS', name:'Bajaj Finance',             sector:'Finance' },
-  { symbol:'BAJAJFINSV.NS', name:'Bajaj Finserv',             sector:'Finance' },
-  { symbol:'HDFCLIFE.NS',   name:'HDFC Life Insurance',       sector:'Finance' },
-  // Conglomerate / Industrial
-  { symbol:'RELIANCE.NS',   name:'Reliance Industries',       sector:'Conglomerate' },
-  { symbol:'ADANIENT.NS',   name:'Adani Enterprises',         sector:'Conglomerate' },
-  { symbol:'ADANIPORTS.NS', name:'Adani Ports & SEZ',         sector:'Conglomerate' },
-  { symbol:'LT.NS',         name:'Larsen & Toubro',           sector:'Industrial' },
-  { symbol:'SIEMENS.NS',    name:'Siemens India',             sector:'Industrial' },
-  // Consumer / FMCG
-  { symbol:'HINDUNILVR.NS', name:'Hindustan Unilever',        sector:'FMCG' },
-  { symbol:'ITC.NS',        name:'ITC Ltd.',                  sector:'FMCG' },
-  { symbol:'NESTLEIND.NS',  name:'Nestle India',              sector:'FMCG' },
-  { symbol:'BRITANNIA.NS',  name:'Britannia Industries',      sector:'FMCG' },
-  { symbol:'DABUR.NS',      name:'Dabur India',               sector:'FMCG' },
-  // Auto
-  { symbol:'MARUTI.NS',     name:'Maruti Suzuki',             sector:'Auto' },
-  { symbol:'TATAMOTORS.NS', name:'Tata Motors',               sector:'Auto' },
-  { symbol:'M&M.NS',        name:'Mahindra & Mahindra',       sector:'Auto' },
-  { symbol:'BAJAJ-AUTO.NS', name:'Bajaj Auto',                sector:'Auto' },
-  { symbol:'HEROMOTOCO.NS', name:'Hero MotoCorp',             sector:'Auto' },
-  // Healthcare / Pharma
-  { symbol:'SUNPHARMA.NS',  name:'Sun Pharmaceutical',        sector:'Pharma' },
-  { symbol:'DRREDDY.NS',    name:"Dr. Reddy's Laboratories",  sector:'Pharma' },
-  { symbol:'CIPLA.NS',      name:'Cipla Ltd.',                sector:'Pharma' },
-  { symbol:'DIVISLAB.NS',   name:"Divi's Laboratories",       sector:'Pharma' },
-  // Energy
-  { symbol:'ONGC.NS',       name:'Oil & Natural Gas Corp.',   sector:'Energy' },
-  { symbol:'NTPC.NS',       name:'NTPC Ltd.',                 sector:'Energy' },
-  { symbol:'POWERGRID.NS',  name:'Power Grid Corp.',          sector:'Energy' },
-  { symbol:'TATAPOWER.NS',  name:'Tata Power',                sector:'Energy' },
-  // Telecom / Media
-  { symbol:'BHARTIARTL.NS', name:'Bharti Airtel',             sector:'Telecom' },
-  // Metals / Mining
-  { symbol:'TATASTEEL.NS',  name:'Tata Steel',                sector:'Metals' },
-  { symbol:'JSWSTEEL.NS',   name:'JSW Steel',                 sector:'Metals' },
+  { symbol:'TCS.NS',          name:'Tata Consultancy Services',   sector:'IT' },
+  { symbol:'INFY.NS',         name:'Infosys Ltd.',                sector:'IT' },
+  { symbol:'WIPRO.NS',        name:'Wipro Ltd.',                  sector:'IT' },
+  { symbol:'HCLTECH.NS',      name:'HCL Technologies',            sector:'IT' },
+  { symbol:'TECHM.NS',        name:'Tech Mahindra',               sector:'IT' },
+  { symbol:'LTIM.NS',         name:'LTIMindtree',                 sector:'IT' },
+  { symbol:'MPHASIS.NS',      name:'Mphasis Ltd.',                sector:'IT' },
+  { symbol:'PERSISTENT.NS',   name:'Persistent Systems',          sector:'IT' },
+  { symbol:'COFORGE.NS',      name:'Coforge Ltd.',                sector:'IT' },
+  { symbol:'KPITTECH.NS',     name:'KPIT Technologies',           sector:'IT' },
+  { symbol:'TATAELXSI.NS',    name:'Tata Elxsi',                  sector:'IT' },
+  { symbol:'OFSS.NS',         name:'Oracle Financial Services',   sector:'IT' },
+  { symbol:'HDFCBANK.NS',     name:'HDFC Bank',                   sector:'Banking' },
+  { symbol:'ICICIBANK.NS',    name:'ICICI Bank',                  sector:'Banking' },
+  { symbol:'SBIN.NS',         name:'State Bank of India',         sector:'Banking' },
+  { symbol:'KOTAKBANK.NS',    name:'Kotak Mahindra Bank',         sector:'Banking' },
+  { symbol:'AXISBANK.NS',     name:'Axis Bank',                   sector:'Banking' },
+  { symbol:'INDUSINDBK.NS',   name:'IndusInd Bank',               sector:'Banking' },
+  { symbol:'BANDHANBNK.NS',   name:'Bandhan Bank',                sector:'Banking' },
+  { symbol:'FEDERALBNK.NS',   name:'Federal Bank',                sector:'Banking' },
+  { symbol:'IDFCFIRSTB.NS',   name:'IDFC First Bank',             sector:'Banking' },
+  { symbol:'PNB.NS',          name:'Punjab National Bank',        sector:'Banking' },
+  { symbol:'BANKBARODA.NS',   name:'Bank of Baroda',              sector:'Banking' },
+  { symbol:'CANBK.NS',        name:'Canara Bank',                 sector:'Banking' },
+  { symbol:'BAJFINANCE.NS',   name:'Bajaj Finance',               sector:'Finance' },
+  { symbol:'BAJAJFINSV.NS',   name:'Bajaj Finserv',               sector:'Finance' },
+  { symbol:'HDFCLIFE.NS',     name:'HDFC Life Insurance',         sector:'Finance' },
+  { symbol:'SBILIFE.NS',      name:'SBI Life Insurance',          sector:'Finance' },
+  { symbol:'ICICIPRULI.NS',   name:'ICICI Prudential Life',       sector:'Finance' },
+  { symbol:'CHOLAFIN.NS',     name:'Cholamandalam Finance',       sector:'Finance' },
+  { symbol:'MUTHOOTFIN.NS',   name:'Muthoot Finance',             sector:'Finance' },
+  { symbol:'LICHSGFIN.NS',    name:'LIC Housing Finance',         sector:'Finance' },
+  { symbol:'RELIANCE.NS',     name:'Reliance Industries',         sector:'Conglomerate' },
+  { symbol:'ADANIENT.NS',     name:'Adani Enterprises',           sector:'Conglomerate' },
+  { symbol:'ADANIPORTS.NS',   name:'Adani Ports and SEZ',         sector:'Conglomerate' },
+  { symbol:'ADANIGREEN.NS',   name:'Adani Green Energy',          sector:'Conglomerate' },
+  { symbol:'TATACHEM.NS',     name:'Tata Chemicals',              sector:'Conglomerate' },
+  { symbol:'TATACOMM.NS',     name:'Tata Communications',         sector:'Conglomerate' },
+  { symbol:'LT.NS',           name:'Larsen and Toubro',           sector:'Industrial' },
+  { symbol:'SIEMENS.NS',      name:'Siemens India',               sector:'Industrial' },
+  { symbol:'ABB.NS',          name:'ABB India',                   sector:'Industrial' },
+  { symbol:'BHEL.NS',         name:'Bharat Heavy Electricals',    sector:'Industrial' },
+  { symbol:'HAL.NS',          name:'Hindustan Aeronautics',       sector:'Industrial' },
+  { symbol:'BEL.NS',          name:'Bharat Electronics',          sector:'Industrial' },
+  { symbol:'CUMMINSIND.NS',   name:'Cummins India',               sector:'Industrial' },
+  { symbol:'THERMAX.NS',      name:'Thermax Ltd.',                sector:'Industrial' },
+  { symbol:'HINDUNILVR.NS',   name:'Hindustan Unilever',          sector:'FMCG' },
+  { symbol:'ITC.NS',          name:'ITC Ltd.',                    sector:'FMCG' },
+  { symbol:'NESTLEIND.NS',    name:'Nestle India',                sector:'FMCG' },
+  { symbol:'BRITANNIA.NS',    name:'Britannia Industries',        sector:'FMCG' },
+  { symbol:'DABUR.NS',        name:'Dabur India',                 sector:'FMCG' },
+  { symbol:'MARICO.NS',       name:'Marico Ltd.',                 sector:'FMCG' },
+  { symbol:'GODREJCP.NS',     name:'Godrej Consumer Products',    sector:'FMCG' },
+  { symbol:'COLPAL.NS',       name:'Colgate-Palmolive India',     sector:'FMCG' },
+  { symbol:'VBL.NS',          name:'Varun Beverages',             sector:'FMCG' },
+  { symbol:'TATACONSUM.NS',   name:'Tata Consumer Products',      sector:'FMCG' },
+  { symbol:'MARUTI.NS',       name:'Maruti Suzuki',               sector:'Auto' },
+  { symbol:'TATAMOTORS.NS',   name:'Tata Motors',                 sector:'Auto' },
+  { symbol:'BAJAJ-AUTO.NS',   name:'Bajaj Auto',                  sector:'Auto' },
+  { symbol:'HEROMOTOCO.NS',   name:'Hero MotoCorp',               sector:'Auto' },
+  { symbol:'EICHERMOT.NS',    name:'Eicher Motors',               sector:'Auto' },
+  { symbol:'TVSMOTORS.NS',    name:'TVS Motor Company',           sector:'Auto' },
+  { symbol:'ASHOKLEY.NS',     name:'Ashok Leyland',               sector:'Auto' },
+  { symbol:'MOTHERSON.NS',    name:'Samvardhana Motherson',       sector:'Auto' },
+  { symbol:'BOSCHLTD.NS',     name:'Bosch Ltd.',                  sector:'Auto' },
+  { symbol:'BALKRISIND.NS',   name:'Balkrishna Industries',       sector:'Auto' },
+  { symbol:'SUNPHARMA.NS',    name:'Sun Pharmaceutical',          sector:'Pharma' },
+  { symbol:'DRREDDY.NS',      name:'Dr. Reddys Laboratories',     sector:'Pharma' },
+  { symbol:'CIPLA.NS',        name:'Cipla Ltd.',                  sector:'Pharma' },
+  { symbol:'DIVISLAB.NS',     name:'Divis Laboratories',          sector:'Pharma' },
+  { symbol:'BIOCON.NS',       name:'Biocon Ltd.',                 sector:'Pharma' },
+  { symbol:'AUROPHARMA.NS',   name:'Aurobindo Pharma',            sector:'Pharma' },
+  { symbol:'LUPIN.NS',        name:'Lupin Ltd.',                  sector:'Pharma' },
+  { symbol:'TORNTPHARM.NS',   name:'Torrent Pharmaceuticals',     sector:'Pharma' },
+  { symbol:'ALKEM.NS',        name:'Alkem Laboratories',          sector:'Pharma' },
+  { symbol:'APOLLOHOSP.NS',   name:'Apollo Hospitals',            sector:'Pharma' },
+  { symbol:'MAXHEALTH.NS',    name:'Max Healthcare',              sector:'Pharma' },
+  { symbol:'ONGC.NS',         name:'Oil and Natural Gas Corp.',   sector:'Energy' },
+  { symbol:'NTPC.NS',         name:'NTPC Ltd.',                   sector:'Energy' },
+  { symbol:'POWERGRID.NS',    name:'Power Grid Corp.',            sector:'Energy' },
+  { symbol:'TATAPOWER.NS',    name:'Tata Power',                  sector:'Energy' },
+  { symbol:'COALINDIA.NS',    name:'Coal India Ltd.',             sector:'Energy' },
+  { symbol:'IOC.NS',          name:'Indian Oil Corp.',            sector:'Energy' },
+  { symbol:'BPCL.NS',         name:'Bharat Petroleum',           sector:'Energy' },
+  { symbol:'GAIL.NS',         name:'GAIL India',                  sector:'Energy' },
+  { symbol:'TORNTPOWER.NS',   name:'Torrent Power',               sector:'Energy' },
+  { symbol:'BHARTIARTL.NS',   name:'Bharti Airtel',               sector:'Telecom' },
+  { symbol:'INDUSTOWER.NS',   name:'Indus Towers',                sector:'Telecom' },
+  { symbol:'SUNTV.NS',        name:'Sun TV Network',              sector:'Telecom' },
+  { symbol:'TATASTEEL.NS',    name:'Tata Steel',                  sector:'Metals' },
+  { symbol:'JSWSTEEL.NS',     name:'JSW Steel',                   sector:'Metals' },
+  { symbol:'HINDALCO.NS',     name:'Hindalco Industries',         sector:'Metals' },
+  { symbol:'VEDL.NS',         name:'Vedanta Ltd.',                sector:'Metals' },
+  { symbol:'SAIL.NS',         name:'Steel Authority of India',    sector:'Metals' },
+  { symbol:'NMDC.NS',         name:'NMDC Ltd.',                   sector:'Metals' },
+  { symbol:'NATIONALUM.NS',   name:'National Aluminium Co.',      sector:'Metals' },
+  { symbol:'ULTRACEMCO.NS',   name:'UltraTech Cement',            sector:'Cement' },
+  { symbol:'SHREECEM.NS',     name:'Shree Cement',                sector:'Cement' },
+  { symbol:'AMBUJACEM.NS',    name:'Ambuja Cements',              sector:'Cement' },
+  { symbol:'ACC.NS',          name:'ACC Ltd.',                    sector:'Cement' },
+  { symbol:'DALMIACEME.NS',   name:'Dalmia Bharat',               sector:'Cement' },
+  { symbol:'DMART.NS',        name:'Avenue Supermarts DMart',     sector:'Retail' },
+  { symbol:'NYKAA.NS',        name:'FSN E-Commerce Nykaa',        sector:'Retail' },
+  { symbol:'ZOMATO.NS',       name:'Zomato Ltd.',                 sector:'Retail' },
+  { symbol:'PAYTM.NS',        name:'One97 Communications Paytm',  sector:'Retail' },
+  { symbol:'POLICYBZR.NS',    name:'PB Fintech PolicyBazaar',     sector:'Retail' },
+  { symbol:'PIDILITIND.NS',   name:'Pidilite Industries',         sector:'Chemicals' },
+  { symbol:'SRF.NS',          name:'SRF Ltd.',                    sector:'Chemicals' },
+  { symbol:'AARTIIND.NS',     name:'Aarti Industries',            sector:'Chemicals' },
+  { symbol:'DEEPAKNTR.NS',    name:'Deepak Nitrite',              sector:'Chemicals' },
+  { symbol:'NAVINFLUOR.NS',   name:'Navin Fluorine',              sector:'Chemicals' },
 ];
 
-// Active universe — toggled by market selector
+// Active universe â€” toggled by market selector
 let activeMarket = 'US';
 let UNIVERSE = UNIVERSE_US;
 
 const SECTOR_ICONS = {
-  // US
-  'Technology':  '💻', 'AI & Cloud':  '🤖', 'Consumer':    '🛒',
-  'Finance':     '💳', 'Media':       '🎬', 'Healthcare':  '💊',
-  'Energy':      '⚡', 'Defensive':   '🛡️',
-  // India
-  'IT':          '💻', 'Banking':     '🏦', 'Conglomerate':'🏢',
-  'Industrial':  '⚙️', 'FMCG':        '🧴', 'Auto':        '🚗',
-  'Pharma':      '💊', 'Telecom':     '📡', 'Metals':      '🔩',
+  'Technology':'💻','AI & Cloud':'🤖','Consumer':'🛒','Finance':'💳',
+  'Media':'🎬','Healthcare':'💊','Energy':'⚡','Defensive':'🛡️',
+  'Industrial':'⚙️','Real Estate':'🏢',
+  'IT':'💻','Banking':'🏦','Conglomerate':'🏢','FMCG':'🧴',
+  'Auto':'🚗','Pharma':'💊','Telecom':'📡','Metals':'🔩',
+  'Cement':'🏗️','Retail':'🛍️','Chemicals':'🧪',
 };
 
-// ─── Scoring engine ─────────────────────────────────────────────────────────
+// â”€â”€â”€ Scoring engine â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function scoreStock(d) {
   if (!d || !d.price) return null;
   let score = 50;
   const signals = [];
   const isIndian = d.symbol && d.symbol.endsWith('.NS');
-  // Indian stocks trade in ₹ — volume thresholds are different (lower float)
+  // Indian stocks trade in â‚¹ â€” volume thresholds are different (lower float)
   const volHigh  = isIndian ? 5e6  : 80e6;
   const volMid   = isIndian ? 2e6  : 40e6;
   const volLow1  = isIndian ? 0.5e6: 15e6;
   const volSell  = isIndian ? 5e6  : 80e6;
   const volSell2 = isIndian ? 2e6  : 40e6;
   const volDead  = isIndian ? 0.1e6: 3e6;
-  // Price sanity: Indian blue-chips are ₹100–₹5000+, penny = <₹10
+  // Price sanity: Indian blue-chips are â‚¹100â€“â‚¹5000+, penny = <â‚¹10
   const pennyThreshold = isIndian ? 10  : 5;
   const goodThreshold  = isIndian ? 100 : 20;
 
@@ -148,12 +284,12 @@ function scoreStock(d) {
   else if (vol > volSell2 && pct < 0) { score -= 12; signals.push({ text: 'Elevated selling volume',  bull: false }); }
   else if (vol < volDead)              { score -= 5;  signals.push({ text: 'Low liquidity',            bull: false }); }
 
-  // 3. Day range position (20 pts) — near high = bullish
+  // 3. Day range position (20 pts) â€” near high = bullish
   if (d.dayHigh && d.dayLow && d.dayHigh > d.dayLow) {
     const pos = (d.price - d.dayLow) / (d.dayHigh - d.dayLow);
     if      (pos >= 0.85) { score += 20; signals.push({ text: 'Trading near day high',   bull: true  }); }
     else if (pos >= 0.6)  { score += 10; signals.push({ text: 'Upper range strength',    bull: true  }); }
-    else if (pos <= 0.15) { score -= 15; signals.push({ text: 'Near day low — weak',     bull: false }); }
+    else if (pos <= 0.15) { score -= 15; signals.push({ text: 'Near day low â€” weak',     bull: false }); }
     else if (pos <= 0.4)  { score -= 5;  signals.push({ text: 'Lower half of range',     bull: false }); }
   }
 
@@ -176,14 +312,14 @@ function scoreStock(d) {
 }
 
 function getRating(score) {
-  if (score >= 80) return { label: 'Strong Buy', color: '#26c281', bg: 'rgba(38,194,129,0.12)', stars: '★★★★★' };
-  if (score >= 65) return { label: 'Buy',         color: '#52d68a', bg: 'rgba(82,214,138,0.12)', stars: '★★★★☆' };
-  if (score >= 50) return { label: 'Hold',        color: '#f39c12', bg: 'rgba(243,156,18,0.12)', stars: '★★★☆☆' };
-  if (score >= 35) return { label: 'Weak',        color: '#e67e22', bg: 'rgba(230,126,34,0.12)', stars: '★★☆☆☆' };
-  return                   { label: 'Avoid',      color: '#e74c3c', bg: 'rgba(231,76,60,0.12)',  stars: '★☆☆☆☆' };
+  if (score >= 80) return { label: 'Strong Buy', color: '#26c281', bg: 'rgba(38,194,129,0.12)', stars: 'â˜…â˜…â˜…â˜…â˜…' };
+  if (score >= 65) return { label: 'Buy',         color: '#52d68a', bg: 'rgba(82,214,138,0.12)', stars: 'â˜…â˜…â˜…â˜…â˜†' };
+  if (score >= 50) return { label: 'Hold',        color: '#f39c12', bg: 'rgba(243,156,18,0.12)', stars: 'â˜…â˜…â˜…â˜†â˜†' };
+  if (score >= 35) return { label: 'Weak',        color: '#e67e22', bg: 'rgba(230,126,34,0.12)', stars: 'â˜…â˜…â˜†â˜†â˜†' };
+  return                   { label: 'Avoid',      color: '#e74c3c', bg: 'rgba(231,76,60,0.12)',  stars: 'â˜…â˜†â˜†â˜†â˜†' };
 }
 
-// ─── Watchlist Best Pick panel (compact, inside sidebar) ────────────────────
+// â”€â”€â”€ Watchlist Best Pick panel (compact, inside sidebar) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const Suggester = (() => {
   function render(stockData) {
     const panel  = document.getElementById('bestPick');
@@ -200,7 +336,7 @@ const Suggester = (() => {
 
     const top    = scored[0];
     const rating = getRating(top.score);
-    const arrow  = top.changePct >= 0 ? '▲' : '▼';
+    const arrow  = top.changePct >= 0 ? 'â–²' : 'â–¼';
     const cls    = top.changePct >= 0 ? 'up' : 'down';
 
     panel.style.display = 'block';
@@ -222,12 +358,12 @@ const Suggester = (() => {
       </div>
       <div class="bp-reasons">
         ${top.signals.filter(s => s.bull !== false).slice(0, 3).map(s =>
-          `<span class="bp-tag">✓ ${s.text}</span>`).join('')}
+          `<span class="bp-tag">âœ“ ${s.text}</span>`).join('')}
       </div>
       <div class="bp-ranking">
         ${scored.slice(0, 5).map((s, i) => {
           const r = getRating(s.score);
-          const a = s.changePct >= 0 ? '▲' : '▼';
+          const a = s.changePct >= 0 ? 'â–²' : 'â–¼';
           const c = s.changePct >= 0 ? 'up' : 'down';
           return `<div class="bp-rank-row ${i === 0 ? 'bp-rank-top' : ''}" data-symbol="${s.symbol}">
             <span class="bp-rank-pos">#${i+1}</span>
@@ -239,8 +375,8 @@ const Suggester = (() => {
         }).join('')}
       </div>
       ${top.isMock
-        ? '<p class="bp-disclaimer">⚠ Demo data — not real market data</p>'
-        : '<p class="bp-disclaimer">ℹ Informational only. Not financial advice.</p>'}
+        ? '<p class="bp-disclaimer">âš  Demo data â€” not real market data</p>'
+        : '<p class="bp-disclaimer">â„¹ Informational only. Not financial advice.</p>'}
     `;
 
     body.querySelectorAll('[data-symbol]').forEach(el => {
@@ -254,7 +390,7 @@ const Suggester = (() => {
   return { render, scoreStock, getRating };
 })();
 
-// ─── Investment Ideas Panel ──────────────────────────────────────────────────
+// â”€â”€â”€ Investment Ideas Panel â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const InvestmentIdeas = (() => {
   let ideaData   = {};   // fetched quotes for universe stocks
   let isLoading  = false;
@@ -305,7 +441,7 @@ const InvestmentIdeas = (() => {
     body.innerHTML = `
       <div class="ideas-loading">
         <div class="ideas-spinner"></div>
-        <p>Scanning ${UNIVERSE.length} stocks across 8 sectors…</p>
+        <p>Scanning ${UNIVERSE.length} stocks across 8 sectorsâ€¦</p>
       </div>`;
   }
 
@@ -330,33 +466,33 @@ const InvestmentIdeas = (() => {
     });
     const hasMock = scored.some(s => s.isMock);
     const isIN    = activeMarket === 'IN';
-    const curr    = isIN ? '₹' : '$';
-    const flag    = isIN ? '🇮🇳' : '🇺🇸';
+    const curr    = isIN ? 'â‚¹' : '$';
+    const flag    = isIN ? 'ðŸ‡®ðŸ‡³' : 'ðŸ‡ºðŸ‡¸';
     const mktLabel= isIN ? 'NSE India' : 'US Markets';
 
     body.innerHTML = `
       <!-- Market toggle -->
       <div class="ideas-market-toggle">
-        <button class="mkt-btn ${activeMarket==='US'?'active':''}" data-mkt="US">🇺🇸 US Markets</button>
-        <button class="mkt-btn ${activeMarket==='IN'?'active':''}" data-mkt="IN">🇮🇳 India (NSE)</button>
+        <button class="mkt-btn ${activeMarket==='US'?'active':''}" data-mkt="US">ðŸ‡ºðŸ‡¸ US Markets</button>
+        <button class="mkt-btn ${activeMarket==='IN'?'active':''}" data-mkt="IN">ðŸ‡®ðŸ‡³ India (NSE)</button>
       </div>
 
-      ${hasMock ? `<div class="ideas-mock-warn">⚠ Some data is simulated (DEMO). Live data loads when market is open.</div>` : ''}
+      ${hasMock ? `<div class="ideas-mock-warn">âš  Some data is simulated (DEMO). Live data loads when market is open.</div>` : ''}
 
-      <div class="ideas-section-title">🔥 Top Picks — ${flag} ${mktLabel}</div>
+      <div class="ideas-section-title">ðŸ”¥ Top Picks â€” ${flag} ${mktLabel}</div>
       <div class="ideas-top-grid">
         ${topPicks.length > 0
           ? topPicks.map(s => ideaCard(s, true, curr)).join('')
-          : '<p class="ideas-empty">No strong buys right now — market may be closed or down.</p>'}
+          : '<p class="ideas-empty">No strong buys right now â€” market may be closed or down.</p>'}
       </div>
 
-      <div class="ideas-section-title" style="margin-top:1rem">📊 Best Pick Per Sector</div>
+      <div class="ideas-section-title" style="margin-top:1rem">ðŸ“Š Best Pick Per Sector</div>
       <div class="ideas-sector-grid">
         ${Object.entries(bySector).map(([sector, s]) => sectorCard(sector, s, curr)).join('')}
       </div>
 
       <div class="ideas-section-title" style="margin-top:1rem">
-        📋 All ${scored.length} Stocks Ranked
+        ðŸ“‹ All ${scored.length} Stocks Ranked
         <span class="ideas-filter-btns" id="ideasFilterBtns">
           <button class="ideas-filter active" data-filter="all">All</button>
           <button class="ideas-filter" data-filter="buy">Buy+</button>
@@ -368,7 +504,7 @@ const InvestmentIdeas = (() => {
       </div>
 
       <p class="ideas-disclaimer">
-        ⚠ Analysis based on intraday price signals only. Not financial advice.
+        âš  Analysis based on intraday price signals only. Not financial advice.
         Always do your own research before investing.
       </p>
     `;
@@ -401,7 +537,7 @@ const InvestmentIdeas = (() => {
 
   function ideaCard(s, showTarget, curr = '$') {
     const r     = getRating(s.score);
-    const arrow = s.changePct >= 0 ? '▲' : '▼';
+    const arrow = s.changePct >= 0 ? 'â–²' : 'â–¼';
     const cls   = s.changePct >= 0 ? 'up' : 'down';
     const bullSignals = s.signals.filter(sig => sig.bull === true).slice(0, 2);
     const displaySym  = s.symbol.replace('.NS','').replace('.BO','');
@@ -425,11 +561,11 @@ const InvestmentIdeas = (() => {
           <span class="idea-score-num" style="color:${r.color}">${s.score}/100</span>
         </div>
         ${bullSignals.length ? `<div class="idea-signals">
-          ${bullSignals.map(sig => `<span class="idea-sig-tag">✓ ${sig.text}</span>`).join('')}
+          ${bullSignals.map(sig => `<span class="idea-sig-tag">âœ“ ${sig.text}</span>`).join('')}
         </div>` : ''}
         ${showTarget && s.upsidePct > 0 ? `
           <div class="idea-target">
-            🎯 Target: <strong>${curr}${s.targetPrice.toFixed(2)}</strong>
+            ðŸŽ¯ Target: <strong>${curr}${s.targetPrice.toFixed(2)}</strong>
             <span class="up">+${s.upsidePct}% upside</span>
           </div>` : ''}
         <div class="idea-card-actions">
@@ -442,17 +578,17 @@ const InvestmentIdeas = (() => {
   function sectorCard(sector, s, curr = '$') {
     const r   = getRating(s.score);
     const cls = s.changePct >= 0 ? 'up' : 'down';
-    const arrow = s.changePct >= 0 ? '▲' : '▼';
+    const arrow = s.changePct >= 0 ? 'â–²' : 'â–¼';
     const displaySym = s.symbol.replace('.NS','').replace('.BO','');
     return `
       <div class="sector-card" data-symbol="${s.symbol}">
         <div class="sector-card-header">
-          <span class="sector-icon">${SECTOR_ICONS[sector] || '📈'}</span>
+          <span class="sector-icon">${SECTOR_ICONS[sector] || 'ðŸ“ˆ'}</span>
           <span class="sector-name">${sector}</span>
         </div>
         <div class="sector-sym">${displaySym}</div>
         <div class="sector-price">${curr}${s.price.toFixed(2)} <span class="${cls}">${arrow}${Math.abs(s.changePct).toFixed(2)}%</span></div>
-        <span class="sector-rating" style="color:${r.color}">${r.label} · ${s.score}/100</span>
+        <span class="sector-rating" style="color:${r.color}">${r.label} Â· ${s.score}/100</span>
       </div>`;
   }
 
@@ -473,7 +609,7 @@ const InvestmentIdeas = (() => {
   function listRow(s, curr = '$') {
     const r   = getRating(s.score);
     const cls = s.changePct >= 0 ? 'up' : 'down';
-    const arrow = s.changePct >= 0 ? '▲' : '▼';
+    const arrow = s.changePct >= 0 ? 'â–²' : 'â–¼';
     const vol = s.volume >= 1e9 ? (s.volume/1e9).toFixed(1)+'B'
               : s.volume >= 1e6 ? (s.volume/1e6).toFixed(1)+'M'
               : s.volume >= 1e3 ? (s.volume/1e3).toFixed(0)+'K' : String(s.volume);
@@ -529,3 +665,5 @@ const InvestmentIdeas = (() => {
 
   return { init, openPanel, closePanel };
 })();
+
+
