@@ -32,6 +32,7 @@
       </div>
       <button class="btn-icon" id="themeToggle" title="Toggle theme">🌙</button>
       <button class="btn-icon ideas-btn-header" id="ideasBtn" title="Investment Ideas">💡 Ideas</button>
+      <button class="btn-icon forecast-btn-header" id="openForecastBtn" title="5-Year Forecast">🔮 Forecast</button>
       <button class="btn-icon" id="alertsBtn" title="Alerts">🔔 <span class="badge" id="alertCount">0</span></button>
     </div>
   </header>
@@ -96,6 +97,38 @@
       </div>
     </section>
 
+    <!-- 5-Year Forecast Panel -->
+    <section class="forecast-panel" id="forecastPanel">
+      <div class="panel-header">
+        <div>
+          <h2>🔮 5-Year Stock Forecast</h2>
+          <span style="font-size:0.75rem;color:var(--text2)">AI-powered prediction using full historical data</span>
+        </div>
+        <button class="btn-icon close-btn" id="closeForecast">✕</button>
+      </div>
+      <div class="fc-search-bar">
+        <input type="text" id="forecastInput" placeholder="Enter stock symbol (e.g. AAPL, TCS.NS, TSLA)..." autocomplete="off" />
+        <button class="btn-primary" id="forecastBtn">🔮 Predict</button>
+      </div>
+      <div class="fc-quick-btns">
+        <span style="font-size:0.75rem;color:var(--text2)">Quick:</span>
+        <button class="fc-quick" data-sym="AAPL">AAPL</button>
+        <button class="fc-quick" data-sym="MSFT">MSFT</button>
+        <button class="fc-quick" data-sym="TSLA">TSLA</button>
+        <button class="fc-quick" data-sym="NVDA">NVDA</button>
+        <button class="fc-quick" data-sym="TCS.NS">TCS</button>
+        <button class="fc-quick" data-sym="INFY.NS">INFY</button>
+        <button class="fc-quick" data-sym="RELIANCE.NS">RELIANCE</button>
+      </div>
+      <div class="fc-content" id="forecastContent">
+        <div class="fc-empty">
+          <span style="font-size:3rem">🔮</span>
+          <p>Enter any stock symbol above to get a detailed 5-year forecast</p>
+          <p style="font-size:0.8rem;color:var(--text2)">Works for US stocks (AAPL) and Indian stocks (TCS.NS)</p>
+        </div>
+      </div>
+    </section>
+
     <!-- Investment Ideas Panel -->
     <section class="ideas-panel" id="ideasPanel">
       <div class="panel-header">
@@ -147,6 +180,7 @@
   <script src="alerts.js"></script>
   <script src="suggest.js"></script>
   <script src="charts.js"></script>
+  <script src="forecast.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
