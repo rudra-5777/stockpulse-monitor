@@ -677,6 +677,7 @@ function init() {
   initWatchlistEvents();
   InvestmentIdeas.init();
   ForecastPanel.init();
+  StockScanner.init();
   // Open forecast from header button
   document.getElementById('openForecastBtn').addEventListener('click', () => ForecastPanel.open());
   AlertManager.updateSymbolSelect(watchlist);

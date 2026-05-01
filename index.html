@@ -134,14 +134,39 @@
       <div class="panel-header">
         <div>
           <h2>💡 Investment Ideas</h2>
-          <span style="font-size:0.75rem;color:var(--text2)">Live analysis of 40 stocks across 8 sectors</span>
+          <span style="font-size:0.75rem;color:var(--text2)">Live analysis across all sectors</span>
         </div>
         <button class="btn-icon close-btn" id="closeIdeas">✕</button>
       </div>
-      <div class="ideas-body" id="ideasBody">
-        <div class="ideas-loading">
-          <div class="ideas-spinner"></div>
-          <p>Loading investment ideas…</p>
+      <!-- Tab bar -->
+      <div class="ideas-tabs">
+        <button class="ideas-tab active" data-tab="ideas">📊 Top Picks</button>
+        <button class="ideas-tab" data-tab="scanner">🔍 Should I Buy?</button>
+      </div>
+      <!-- Top Picks tab -->
+      <div class="ideas-tab-content" id="ideasTabIdeas">
+        <div class="ideas-body" id="ideasBody">
+          <div class="ideas-loading">
+            <div class="ideas-spinner"></div>
+            <p>Loading investment ideas…</p>
+          </div>
+        </div>
+      </div>
+      <!-- Should I Buy scanner tab -->
+      <div class="ideas-tab-content hidden" id="ideasTabScanner">
+        <div class="scanner-controls">
+          <div class="scanner-mkt-toggle">
+            <button class="mkt-btn active" data-smkt="US">🇺🇸 US</button>
+            <button class="mkt-btn" data-smkt="IN">🇮🇳 India</button>
+          </div>
+          <button class="btn-primary" id="runScannerBtn">🔍 Scan All Stocks</button>
+        </div>
+        <div id="scannerBody">
+          <div class="scanner-empty">
+            <span style="font-size:2.5rem">🔍</span>
+            <p>Click "Scan All Stocks" to analyse every stock in the database using 5-year historical data and get a buy/hold/avoid verdict for each one.</p>
+            <p style="font-size:0.78rem;color:var(--text2)">Takes ~60 seconds to scan all stocks</p>
+          </div>
         </div>
       </div>
     </section>
@@ -181,6 +206,7 @@
   <script src="suggest.js"></script>
   <script src="charts.js"></script>
   <script src="forecast.js"></script>
+  <script src="scanner.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
