@@ -312,11 +312,11 @@ function scoreStock(d) {
 }
 
 function getRating(score) {
-  if (score >= 80) return { label: 'Strong Buy', color: '#26c281', bg: 'rgba(38,194,129,0.12)', stars: 'â˜…â˜…â˜…â˜…â˜…' };
-  if (score >= 65) return { label: 'Buy',         color: '#52d68a', bg: 'rgba(82,214,138,0.12)', stars: 'â˜…â˜…â˜…â˜…â˜†' };
-  if (score >= 50) return { label: 'Hold',        color: '#f39c12', bg: 'rgba(243,156,18,0.12)', stars: 'â˜…â˜…â˜…â˜†â˜†' };
-  if (score >= 35) return { label: 'Weak',        color: '#e67e22', bg: 'rgba(230,126,34,0.12)', stars: 'â˜…â˜…â˜†â˜†â˜†' };
-  return                   { label: 'Avoid',      color: '#e74c3c', bg: 'rgba(231,76,60,0.12)',  stars: 'â˜…â˜†â˜†â˜†â˜†' };
+  if (score >= 80) return { label: 'Strong Buy', color: '#26c281', bg: 'rgba(38,194,129,0.12)', stars: '★★★★★' };
+  if (score >= 65) return { label: 'Buy',         color: '#52d68a', bg: 'rgba(82,214,138,0.12)', stars: '★★★★☆' };
+  if (score >= 50) return { label: 'Hold',        color: '#f39c12', bg: 'rgba(243,156,18,0.12)', stars: '★★★☆☆' };
+  if (score >= 35) return { label: 'Weak',        color: '#e67e22', bg: 'rgba(230,126,34,0.12)', stars: '★★☆☆☆' };
+  return                   { label: 'Avoid',      color: '#e74c3c', bg: 'rgba(231,76,60,0.12)',  stars: '★☆☆☆☆' };
 }
 
 // â”€â”€â”€ Watchlist Best Pick panel (compact, inside sidebar) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -336,7 +336,7 @@ const Suggester = (() => {
 
     const top    = scored[0];
     const rating = getRating(top.score);
-    const arrow  = top.changePct >= 0 ? 'â–²' : 'â–¼';
+    const arrow  = top.changePct >= 0 ? '▲²' : '▲¼';
     const cls    = top.changePct >= 0 ? 'up' : 'down';
 
     panel.style.display = 'block';
@@ -363,7 +363,7 @@ const Suggester = (() => {
       <div class="bp-ranking">
         ${scored.slice(0, 5).map((s, i) => {
           const r = getRating(s.score);
-          const a = s.changePct >= 0 ? 'â–²' : 'â–¼';
+          const a = s.changePct >= 0 ? '▲²' : '▲¼';
           const c = s.changePct >= 0 ? 'up' : 'down';
           return `<div class="bp-rank-row ${i === 0 ? 'bp-rank-top' : ''}" data-symbol="${s.symbol}">
             <span class="bp-rank-pos">#${i+1}</span>
@@ -537,7 +537,7 @@ const InvestmentIdeas = (() => {
 
   function ideaCard(s, showTarget, curr = '$') {
     const r     = getRating(s.score);
-    const arrow = s.changePct >= 0 ? 'â–²' : 'â–¼';
+    const arrow = s.changePct >= 0 ? '▲²' : '▲¼';
     const cls   = s.changePct >= 0 ? 'up' : 'down';
     const bullSignals = s.signals.filter(sig => sig.bull === true).slice(0, 2);
     const displaySym  = s.symbol.replace('.NS','').replace('.BO','');
@@ -578,7 +578,7 @@ const InvestmentIdeas = (() => {
   function sectorCard(sector, s, curr = '$') {
     const r   = getRating(s.score);
     const cls = s.changePct >= 0 ? 'up' : 'down';
-    const arrow = s.changePct >= 0 ? 'â–²' : 'â–¼';
+    const arrow = s.changePct >= 0 ? '▲²' : '▲¼';
     const displaySym = s.symbol.replace('.NS','').replace('.BO','');
     return `
       <div class="sector-card" data-symbol="${s.symbol}">
@@ -609,7 +609,7 @@ const InvestmentIdeas = (() => {
   function listRow(s, curr = '$') {
     const r   = getRating(s.score);
     const cls = s.changePct >= 0 ? 'up' : 'down';
-    const arrow = s.changePct >= 0 ? 'â–²' : 'â–¼';
+    const arrow = s.changePct >= 0 ? '▲²' : '▲¼';
     const vol = s.volume >= 1e9 ? (s.volume/1e9).toFixed(1)+'B'
               : s.volume >= 1e6 ? (s.volume/1e6).toFixed(1)+'M'
               : s.volume >= 1e3 ? (s.volume/1e3).toFixed(0)+'K' : String(s.volume);
@@ -643,20 +643,19 @@ const InvestmentIdeas = (() => {
   }
 
   function openPanel() {
-    document.getElementById('ideasPanel').classList.add('open');
+    if (typeof navigateTo === 'function') navigateTo('portfolio');
     fetchUniverseQuotes();
   }
 
   function closePanel() {
-    document.getElementById('ideasPanel').classList.remove('open');
+    ;
   }
 
   function init() {
-    document.getElementById('ideasBtn').addEventListener('click', openPanel);
-    document.getElementById('closeIdeas').addEventListener('click', closePanel);
-    // Refresh ideas every 30s when panel is open
+    // Integrated into Portfolio page - no panel button needed
     setInterval(() => {
-      if (document.getElementById('ideasPanel').classList.contains('open')) {
+      const portfolioPage = document.getElementById('page-portfolio');
+      if (portfolioPage && portfolioPage.classList.contains('active')) {
         lastFetch = 0;
         fetchUniverseQuotes();
       }
@@ -665,5 +664,3 @@ const InvestmentIdeas = (() => {
 
   return { init, openPanel, closePanel };
 })();
-
-

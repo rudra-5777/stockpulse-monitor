@@ -254,16 +254,6 @@ const StockScanner = (() => {
   }
 
   function init() {
-    // Tab switching
-    document.querySelectorAll('.ideas-tab').forEach(tab => {
-      tab.addEventListener('click', () => {
-        document.querySelectorAll('.ideas-tab').forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-        document.querySelectorAll('.ideas-tab-content').forEach(c => c.classList.add('hidden'));
-        document.getElementById(`ideasTab${tab.dataset.tab.charAt(0).toUpperCase() + tab.dataset.tab.slice(1)}`).classList.remove('hidden');
-      });
-    });
-
     // Market toggle in scanner
     document.querySelectorAll('[data-smkt]').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -271,14 +261,10 @@ const StockScanner = (() => {
         btn.classList.add('active');
         scanMarket = btn.dataset.smkt;
         scanResults = {};
-        document.getElementById('scannerBody').innerHTML = `
-          <div class="scanner-empty">
-            <span style="font-size:2.5rem">🔍</span>
-            <p>Click "Scan All Stocks" to analyse ${scanMarket === 'IN' ? 'Indian (NSE)' : 'US'} stocks.</p>
-          </div>`;
+        document.getElementById('scannerBody').innerHTML =
+          '<div class="scanner-empty"><span>🔍</span><p>Click Scan All Stocks to analyse ' + (scanMarket === 'IN' ? 'Indian (NSE)' : 'US') + ' stocks.</p></div>';
       });
     });
-
     // Run scanner button
     document.getElementById('runScannerBtn').addEventListener('click', () => {
       if (!isScanning) scanAll();
