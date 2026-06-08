@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StockPulse - Real-Time Monitor</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.9/dist/chart.umd.min.js"></script>
+  
+  <style>
+    :root {
+      --bg: #0f1117;
+      --bg2: #1a1d27;
+      --bg3: #22263a;
+      --border: #2e3250;
+      --text: #e8eaf6;
+      --text2: #9ea3c0;
+      --accent: #4f8ef7;
+      --green: #26c281;
+      --red: #e74c3c;
+      --yellow: #f39c12;
+      --radius: 12px;
+      --radius-sm: 8px;
+    }
+    [data-theme="light"] {
+      --bg: #f0f2f8;
+      --bg2: #ffffff;
+      --bg3: #e8eaf6;
+      --border: #d0d4e8;
+      --text: #1a1d27;
+      --text2: #5a5f7a;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      transition: background 0.3s, color 0.3s;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 1.5rem;
+      background: var(--bg2);
+      border-bottom: 1px solid var(--border);
+      gap: 1rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+    .refresh-badge {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--green);
+      background: rgba(38,194,129,0.12);
+      padding: 2px 8px;
+      border-radius: 20px;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    .main {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      grid-template-rows: 1fr;
+      gap: 1rem;
+      padding: 1rem 1.5rem;
+      min-height: calc(100vh - 57px);
+    }
+    .watchlist-panel {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      max-height: calc(100vh - 90px);
+    }
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .panel-header h2 {
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+    .count {
+      color: var(--text2);
+      font-size: 0.8rem;
+      font-weight: 400;
+      margin-left: 4px;
+    }
+    .watchlist {
+      overflow-y: auto;
+      flex: 1;
+    }
+    .stock-card {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      grid-template-rows: auto auto;
+      gap: 0.15rem 0.5rem;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      transition: background 0.15s;
+      position: relative;
+    }
+    .stock-card:hover {
+      background: var(--bg3);
+    }
+    .stock-card.active {
+      background: rgba(79,142,247,0.1);
+      border-left: 3px solid var(--accent);
+    }
+    .stock-symbol {
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--text);
+    }
+    .stock-name {
+      font-size: 0.75rem;
+      color: var(--text2);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .stock-price {
+      font-weight: 700;
+      font-size: 1rem;
+      text-align: right;
+    }
+    .stock-change {
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-align: right;
+      display: flex;
+      align-items: center;
+      gap: 2px;
+    }
+    .up { color: var(--green); }
+    .down { color: var(--red); }
+    .neutral { color: var(--text2); }
+    .chart-panel {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .chart-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.85rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+    .chart-title-group h2 {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .chart-subtitle {
+      font-size: 0.8rem;
+      color: var(--text2);
+    }
+    .chart-controls {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .range-btns {
+      display: flex;
+      background: var(--bg3);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .range-btn {
+      background: none;
+      border: none;
+      color: var(--text2);
+      padding: 0.3rem 0.7rem;
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: background 0.15s, color 0.15s;
+    }
+    .range-btn.active {
+      background: var(--accent);
+      color: #fff;
+    }
+    .chart-container {
+      flex: 1;
+      position: relative;
+      padding: 1rem;
+      min-height: 350px;
+    }
+    .chart-placeholder {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--text2);
+      gap: 0.5rem;
+      font-size: 0.9rem;
+    }
+    .chart-placeholder span {
+      font-size: 3rem;
+    }
+    .chart-placeholder.hidden {
+      display: none;
+    }
+    .btn-icon {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.4rem 0.7rem;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-size: 0.875rem;
+      transition: background 0.2s;
+    }
+    .btn-icon:hover {
+      background: var(--border);
+    }
+    .empty-state {
+      text-align: center;
+      color: var(--text2);
+      padding: 2rem 1rem;
+      font-size: 0.875rem;
+      line-height: 1.6;
+    }
+    @media (max-width: 900px) {
+      .main {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr;
+      }
+      .watchlist-panel {
+        max-height: 300px;
+      }
+    }
+    @media (max-width: 600px) {
+      .header {
+        padding: 0.6rem 1rem;
+      }
+      .main {
+        padding: 0.75rem;
+        gap: 0.75rem;
+      }
+      .logo {
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-left">
+      <span class="logo">📈 StockPulse</span>
+      <span class="refresh-badge" id="refreshBadge">● LIVE</span>
+    </div>
+    <div class="header-right">
+      <button class="btn-icon" id="themeToggle" title="Toggle theme">🌙</button>
+    </div>
+  </header>
+
+  <main class="main">
+    <!-- Watchlist Panel -->
+    <section class="watchlist-panel">
+      <div class="panel-header">
+        <h2>Watchlist <span class="count" id="watchlistCount">0/15</span></h2>
+      </div>
+      <div class="watchlist" id="watchlist">
+        <div class="empty-state" id="emptyState">
+          <p>Loading stocks...</p>
+          <p>Demo data with live updates</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Chart Panel -->
+    <section class="chart-panel">
+      <div class="chart-header">
+        <div class="chart-title-group">
+          <h2 id="chartTitle">Select a stock</h2>
+          <span class="chart-subtitle" id="chartSubtitle"></span>
+        </div>
+        <div class="chart-controls">
+          <div class="range-btns" id="rangeBtns">
+            <button class="range-btn active" data-range="1d">1D</button>
+            <button class="range-btn" data-range="5d">5D</button>
+            <button class="range-btn" data-range="1mo">1M</button>
+            <button class="range-btn" data-range="3mo">3M</button>
+          </div>
+        </div>
+      </div>
+      <div class="chart-container">
+        <canvas id="stockChart"></canvas>
+        <div class="chart-placeholder" id="chartPlaceholder">
+          <span>📊</span>
+          <p>Click a stock to view its chart</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // ===== Stock Symbols & Base Prices =====
+    const SYMBOLS = [
+      'AAPL', 'MSFT', 'GOOGL', 'AMZN', 'TSLA', 'META', 'NVDA', 'NFLX', 'AMD', 
+      'COIN', 'PLTR', 'CRWD', 'SNOW', 'NET', 'UBER'
+    ];
+    
+    const BASE_PRICES = {
+      AAPL: 192, MSFT: 415, GOOGL: 175, AMZN: 185, TSLA: 175, META: 505, NVDA: 875, NFLX: 635, AMD: 165,
+      COIN: 225, PLTR: 25, CRWD: 320, SNOW: 155, NET: 95, UBER: 72
+    };
+
+    // ===== Seeded RNG =====
+    function seededRand(seed) {
+      let s = seed >>> 0;
+      return function() {
+        s += 0x6D2B79F5;
+        let t = Math.imul(s ^ (s >>> 15), 1 | s);
+        t ^= t + Math.imul(t ^ (t >>> 7), 61 | t);
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+      };
+    }
+
+    function strSeed(str) {
+      let h = 0;
+      for (let i = 0; i < str.length; i++) h = Math.imul(31, h) + str.charCodeAt(i) | 0;
+      return Math.abs(h);
+    }
+
+    // ===== Mock Data =====
+    function getMockQuote(symbol) {
+      const base = BASE_PRICES[symbol] || 100;
+      const seed = strSeed(symbol + Math.floor(Date.now() / 5000));
+      const rand = seededRand(seed);
+      const price = base * (0.98 + rand() * 0.04);
+      const change = (rand() - 0.5) * 10;
+      return {
+        symbol,
+        price: parseFloat(price.toFixed(2)),
+        change: parseFloat(change.toFixed(2)),
+        changePct: parseFloat((change / base * 100).toFixed(2)),
+        isMock: true
+      };
+    }
+
+    function getMockHistory(symbol, range) {
+      const seed = strSeed(symbol + range + Math.floor(Date.now() / 3600000));
+      const rand = seededRand(seed);
+      const base = BASE_PRICES[symbol] || 100;
+      const counts = { '1d': 24, '5d': 20, '1mo': 20, '3mo': 13 };
+      const n = counts[range] || 20;
+      const data = [];
+      let price = base * (0.95 + rand() * 0.1);
+      
+      for (let i = 0; i < n; i++) {
+        const open = parseFloat(price.toFixed(2));
+        const close = parseFloat(Math.max(open + (rand() - 0.48) * price * 0.014, 0.01).toFixed(2));
+        const high = parseFloat((Math.max(open, close) * (1 + rand() * 0.007)).toFixed(2));
+        const low = parseFloat((Math.min(open, close) * (1 - rand() * 0.007)).toFixed(2));
+        const volume = Math.floor(rand() * 5e6 + 1e6);
+        
+        let label;
+        if (range === '1d') {
+          const mins = Math.floor((i / n) * 390);
+          const h = Math.floor(9 + (30 + mins) / 60);
+          const m = (30 + mins) % 60;
+          label = `${h}:${m.toString().padStart(2, '0')}`;
+        } else if (range === '5d') {
+          label = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'][i % 5];
+        } else {
+          label = `Day ${i+1}`;
+        }
+        
+        data.push({ label, open, high, low, close, volume });
+        price = close;
+      }
+      return data;
+    }
+
+    // ===== State =====
+    let stockData = {};
+    let selectedSymbol = null;
+    let selectedRange = '1d';
+    let chart = null;
+    let refreshCountdown = 5;
+
+    // ===== Render Watchlist =====
+    function renderWatchlist() {
+      const container = document.getElementById('watchlist');
+      const emptyState = document.getElementById('emptyState');
+      document.getElementById('watchlistCount').textContent = `${SYMBOLS.length}/15`;
+
+      if (SYMBOLS.length === 0) {
+        container.innerHTML = '';
+        emptyState.classList.remove('hidden');
+        return;
+      }
+      emptyState.classList.add('hidden');
+
+      container.innerHTML = SYMBOLS.map(symbol => {
+        const d = stockData[symbol] || getMockQuote(symbol);
+        stockData[symbol] = d;
+        const cls = d.changePct > 0 ? 'up' : d.changePct < 0 ? 'down' : 'neutral';
+        const arrow = d.changePct > 0 ? '▲' : d.changePct < 0 ? '▼' : '–';
+        const activeClass = selectedSymbol === symbol ? 'active' : '';
+        
+        return `<div class="stock-card ${activeClass}" data-symbol="${symbol}">
+          <span class="stock-symbol">● ${symbol}</span>
+          <span class="stock-price">$${d.price.toFixed(2)}</span>
+          <span class="stock-name">Demo Data</span>
+          <span class="stock-change ${cls}">${arrow} ${Math.abs(d.changePct).toFixed(2)}%</span>
+        </div>`;
+      }).join('');
+
+      document.querySelectorAll('.stock-card').forEach(card => {
+        card.addEventListener('click', () => {
+          document.querySelectorAll('.stock-card').forEach(c => c.classList.remove('active'));
+          card.classList.add('active');
+          selectSymbol(card.dataset.symbol);
+        });
+      });
+    }
+
+    // ===== Select & Load Chart =====
+    function selectSymbol(symbol) {
+      selectedSymbol = symbol;
+      renderWatchlist();
+      loadChart(symbol, selectedRange);
+    }
+
+    function loadChart(symbol, range) {
+      selectedRange = range;
+      const data = getMockHistory(symbol, range);
+      const d = stockData[symbol] || getMockQuote(symbol);
+      
+      document.getElementById('chartTitle').textContent = symbol;
+      const cls = d.changePct > 0 ? 'up' : d.changePct < 0 ? 'down' : 'neutral';
+      const arrow = d.changePct > 0 ? '▲' : d.changePct < 0 ? '▼' : '–';
+      
+      document.getElementById('chartSubtitle').innerHTML = 
+        `<span style="font-size:1.1rem;font-weight:700">$${d.price.toFixed(2)}</span>` +
+        `<span class="${cls}" style="margin-left:8px">${arrow} ${d.change >= 0 ? '+' : ''}$${d.change.toFixed(2)} (${d.changePct.toFixed(2)}%)</span>` +
+        `<span style="font-size:0.7rem;background:var(--yellow);color:#000;padding:1px 6px;border-radius:4px;font-weight:700;margin-left:8px">DEMO</span>`;
+      
+      document.getElementById('chartPlaceholder').classList.add('hidden');
+      renderChart(symbol, data);
+    }
+
+    function renderChart(symbol, data) {
+      const canvas = document.getElementById('stockChart');
+      const ctx = canvas.getContext('2d');
+      
+      if (chart) chart.destroy();
+      
+      const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+      const closes = data.map(d => d.close);
+      const isUp = closes[closes.length - 1] >= closes[0];
+      const mainColor = isUp ? '#26c281' : '#e74c3c';
+      const textColor = isDark ? '#9ea3c0' : '#5a5f7a';
+      const gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
+      const tooltipBg = isDark ? '#1a1d27' : '#ffffff';
+      const tooltipTitle = isDark ? '#e8eaf6' : '#1a1d27';
+      
+      const gradient = ctx.createLinearGradient(0, 0, 0, canvas.offsetHeight || 400);
+      gradient.addColorStop(0, isUp ? 'rgba(38,194,129,0.25)' : 'rgba(231,76,60,0.25)');
+      gradient.addColorStop(1, 'rgba(0,0,0,0)');
+      
+      chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: data.map(d => d.label),
+          datasets: [{
+            label: symbol,
+            data: closes,
+            borderColor: mainColor,
+            backgroundColor: gradient,
+            borderWidth: 2,
+            pointRadius: data.length > 20 ? 0 : 2,
+            pointHoverRadius: 5,
+            fill: true,
+            tension: 0.3
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: { duration: 250 },
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: tooltipBg,
+              titleColor: tooltipTitle,
+              bodyColor: textColor,
+              borderColor: isDark ? '#2e3250' : '#d0d4e8',
+              borderWidth: 1,
+              padding: 10
+            }
+          },
+          scales: {
+            x: {
+              ticks: { color: textColor, maxTicksLimit: 10 },
+              grid: { color: gridColor }
+            },
+            y: {
+              position: 'right',
+              ticks: { color: textColor, callback: v => '$' + v.toFixed(2) },
+              grid: { color: gridColor }
+            }
+          }
+        }
+      });
+    }
+
+    // ===== Theme Toggle =====
+    document.getElementById('themeToggle').addEventListener('click', () => {
+      const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      document.getElementById('themeToggle').textContent = next === 'dark' ? '☀️' : '🌙';
+      if (selectedSymbol) loadChart(selectedSymbol, selectedRange);
+    });
+
+    // ===== Range Buttons =====
+    document.getElementById('rangeBtns').addEventListener('click', (e) => {
+      if (!e.target.classList.contains('range-btn')) return;
+      document.querySelectorAll('.range-btn').forEach(b => b.classList.remove('active'));
+      e.target.classList.add('active');
+      if (selectedSymbol) loadChart(selectedSymbol, e.target.dataset.range);
+    });
+
+    // ===== Initialize =====
+    function init() {
+      renderWatchlist();
+      selectSymbol(SYMBOLS[0]);
+    }
+
+    // ===== Auto Refresh =====
+    function updateRefreshBadge() {
+      document.getElementById('refreshBadge').textContent = `● LIVE  ${refreshCountdown}s`;
+    }
+
+    function startRefresh() {
+      refreshCountdown = 5;
+      setInterval(() => {
+        refreshCountdown--;
+        updateRefreshBadge();
+
+        if (refreshCountdown <= 0) {
+          refreshCountdown = 5;
+          SYMBOLS.forEach(symbol => {
+            stockData[symbol] = getMockQuote(symbol);
+          });
+          renderWatchlist();
+          if (selectedSymbol) {
+            const d = stockData[selectedSymbol];
+            const cls = d.changePct > 0 ? 'up' : d.changePct < 0 ? 'down' : 'neutral';
+            const arrow = d.changePct > 0 ? '▲' : d.changePct < 0 ? '▼' : '–';
+            document.getElementById('chartSubtitle').innerHTML = 
+              `<span style="font-size:1.1rem;font-weight:700">$${d.price.toFixed(2)}</span>` +
+              `<span class="${cls}" style="margin-left:8px">${arrow} ${d.change >= 0 ? '+' : ''}$${d.change.toFixed(2)} (${d.changePct.toFixed(2)}%)</span>` +
+              `<span style="font-size:0.7rem;background:var(--yellow);color:#000;padding:1px 6px;border-radius:4px;font-weight:700;margin-left:8px">DEMO</span>`;
+          }
+        }
+      }, 1000);
+    }
+
+    init();
+    startRefresh();
+  </script>
+</body>
+</html>
