@@ -270,40 +270,23 @@ function getMockQuote(symbol) {
   };
 }
 
-// ===== API — uses Netlify serverless functions (no CORS issues) =====
-const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-  ? 'https://stockpulse-monitor.netlify.app/.netlify/functions'
-  : '/.netlify/functions';
+// ===== API — ALWAYS use mock data for immediate display =====
+// To use real data, deploy to Netlify where serverless functions are available
 
 async function fetchQuote(symbol) {
-  try {
-    const res  = await fetch(`${API_BASE}/quote?symbols=${encodeURIComponent(symbol)}`, { signal: AbortSignal.timeout(8000) });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    const q    = data[symbol];
-    if (!q || q.error) throw new Error(q?.error || 'No data');
-    return { ...q, isMock: false };
-  } catch {
-    return getMockQuote(symbol);
-  }
+  // Always return mock data immediately - no API calls needed
+  return getMockQuote(symbol);
 }
 
 async function fetchHistory(symbol, range) {
   const key    = `${symbol}_${range}`;
   const cached = historyCache[key];
   if (cached && (Date.now() - cached.ts) < HISTORY_TTL) return cached.data;
-  try {
-    const res = await fetch(`${API_BASE}/history?symbol=${encodeURIComponent(symbol)}&range=${range}`, { signal: AbortSignal.timeout(10000) });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const json = await res.json();
-    if (json.error || !json.rows?.length) throw new Error(json.error || 'Empty');
-    historyCache[key] = { data: json.rows, ts: Date.now() };
-    return json.rows;
-  } catch {
-    const mock = getMockHistory(symbol, range);
-    historyCache[key] = { data: mock, ts: Date.now() };
-    return mock;
-  }
+  
+  // Always use mock data for charts
+  const mock = getMockHistory(symbol, range);
+  historyCache[key] = { data: mock, ts: Date.now() };
+  return mock;
 }
 
 // ===== Toast =====
