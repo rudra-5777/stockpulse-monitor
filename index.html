@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>StockPulse - Real-Time Monitor</title>
+  <title>Market Pulse - Real-Time Analytics</title>
   <link rel="stylesheet" href="styles.css" />
   <!-- SRI hashes pin each script to an exact file — a compromised CDN cannot inject code (CWE-353) -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.9/dist/chart.umd.min.js"
@@ -20,82 +20,139 @@
           crossorigin="anonymous"></script>
 </head>
 <body>
-  <header class="header">
-    <div class="header-left">
-      <span class="logo">📈 StockPulse</span>
-      <span class="refresh-badge" id="refreshBadge">● LIVE</span>
+  <!-- Sidebar Navigation -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <span class="logo-icon">📊</span>
+        <div class="logo-text">
+          <div class="logo-main">Market Pulse</div>
+          <div class="logo-sub">Real-time Analytics</div>
+        </div>
+      </div>
     </div>
-    <div class="header-right">
-      <div class="search-wrapper">
-        <input type="text" id="searchInput" placeholder="Search symbol (e.g. AAPL)..." autocomplete="off" />
-        <div class="search-dropdown" id="searchDropdown"></div>
+
+    <nav class="sidebar-menu">
+      <button class="menu-item active" data-section="dashboard">
+        <span class="menu-icon">📈</span>
+        <span class="menu-label">Dashboard</span>
+      </button>
+      <button class="menu-item" data-section="watchlist">
+        <span class="menu-icon">⭐</span>
+        <span class="menu-label">Watchlist</span>
+      </button>
+      <button class="menu-item" data-section="portfolio">
+        <span class="menu-icon">💼</span>
+        <span class="menu-label">Portfolio</span>
+      </button>
+      <button class="menu-item" data-section="forecast">
+        <span class="menu-icon">🔮</span>
+        <span class="menu-label">Forecast</span>
+      </button>
+      <button class="menu-item" data-section="news">
+        <span class="menu-icon">📰</span>
+        <span class="menu-label">News</span>
+      </button>
+      <button class="menu-item" data-section="screener">
+        <span class="menu-icon">🔍</span>
+        <span class="menu-label">Screener</span>
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <span class="user-avatar">U</span>
+        <div class="user-details">
+          <div class="user-name">Trader</div>
+          <div class="user-status">Pro</div>
+        </div>
       </div>
-      <button class="btn-icon" id="themeToggle" title="Toggle theme">🌙</button>
-      <button class="btn-icon ideas-btn-header" id="ideasBtn" title="Investment Ideas">💡 Ideas</button>
-      <button class="btn-icon forecast-btn-header" id="openForecastBtn" title="5-Year Forecast">🔮 Forecast</button>
-      <button class="btn-icon" id="alertsBtn" title="Alerts">🔔 <span class="badge" id="alertCount">0</span></button>
+      <div class="user-badges">
+        <span class="badge-item">👋</span>
+        <span class="badge-item">🔔</span>
+      </div>
     </div>
-  </header>
+  </aside>
 
-  <main class="main">
-    <!-- Watchlist Panel -->
-    <section class="watchlist-panel">
-      <div class="panel-header">
-        <h2>Watchlist <span class="count" id="watchlistCount">0/50</span></h2>
-        <button class="btn-sm" id="addSymbolBtn">+ Add Symbol</button>
+  <!-- Main Content -->
+  <div class="main-wrapper">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-left">
+        <h1 class="page-title">Dashboard</h1>
+        <p class="page-subtitle">Market overview & live prices</p>
       </div>
-      <div class="add-symbol-form hidden" id="addSymbolForm">
-        <input type="text" id="symbolInput" placeholder="Enter symbol (e.g. TSLA)" maxlength="10" />
-        <button class="btn-primary" id="confirmAdd">Add</button>
-        <button class="btn-ghost" id="cancelAdd">Cancel</button>
-      </div>
-      <!-- Best Pick Suggestion -->
-      <div class="best-pick" id="bestPick" style="display:none">
-        <div class="best-pick-header">
-          <span class="best-pick-label">🏆 Best Pick</span>
-          <span class="best-pick-reason" id="bestPickReason"></span>
+      <div class="header-right">
+        <div class="search-wrapper">
+          <input type="text" id="searchInput" placeholder="Search & add symbol..." autocomplete="off" />
+          <div class="search-dropdown" id="searchDropdown"></div>
         </div>
-        <div class="best-pick-body" id="bestPickBody"></div>
+        <span class="refresh-badge" id="refreshBadge">● LIVE 5s</span>
+        <button class="btn-icon" id="themeToggle" title="Toggle theme">🌙</button>
       </div>
-      <div class="watchlist" id="watchlist">
-        <div class="empty-state" id="emptyState">
-          <p>No stocks added yet.</p>
-          <p>Add up to 50 symbols to track live prices.</p>
-        </div>
-      </div>
-    </section>
+    </header>
 
-    <!-- Chart Panel -->
-    <section class="chart-panel">
-      <div class="chart-header">
-        <div class="chart-title-group">
-          <h2 id="chartTitle">Select a stock</h2>
-          <span class="chart-subtitle" id="chartSubtitle"></span>
-          <span class="growth-badge" id="growthBadge" style="display:none"></span>
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Watchlist Panel (Left) -->
+      <section class="watchlist-panel">
+        <div class="panel-header">
+          <h2>Watchlist <span class="count" id="watchlistCount">0/50</span></h2>
+          <button class="btn-sm" id="addSymbolBtn">+ Add Symbol</button>
         </div>
-        <div class="chart-controls">
-          <div class="chart-type-btns">
-            <button class="chart-btn active" data-type="line">Line</button>
-            <button class="chart-btn" data-type="bar">Bar</button>
-            <button class="chart-btn" data-type="candlestick">Candle</button>
+        <div class="add-symbol-form hidden" id="addSymbolForm">
+          <input type="text" id="symbolInput" placeholder="Enter symbol (e.g. TSLA)" maxlength="10" />
+          <button class="btn-primary" id="confirmAdd">Add</button>
+          <button class="btn-ghost" id="cancelAdd">Cancel</button>
+        </div>
+        <!-- Best Pick Suggestion -->
+        <div class="best-pick" id="bestPick" style="display:none">
+          <div class="best-pick-header">
+            <span class="best-pick-label">🏆 Best Pick</span>
+            <span class="best-pick-reason" id="bestPickReason"></span>
           </div>
-          <div class="range-btns">
-            <button class="range-btn active" data-range="1d">1D</button>
-            <button class="range-btn" data-range="5d">5D</button>
-            <button class="range-btn" data-range="1mo">1M</button>
-            <button class="range-btn" data-range="3mo">3M</button>
-            <button class="range-btn" data-range="10y">10Y</button>
+          <div class="best-pick-body" id="bestPickBody"></div>
+        </div>
+        <div class="watchlist" id="watchlist">
+          <div class="empty-state" id="emptyState">
+            <p>No stocks added yet.</p>
+            <p>Add up to 50 symbols to track live prices.</p>
           </div>
         </div>
-      </div>
-      <div class="chart-container">
-        <canvas id="stockChart"></canvas>
-        <div class="chart-placeholder" id="chartPlaceholder">
-          <span>📊</span>
-          <p>Click a stock to view its chart</p>
+      </section>
+
+      <!-- Chart Panel (Right) -->
+      <section class="chart-panel">
+        <div class="chart-header">
+          <div class="chart-title-group">
+            <h2 id="chartTitle">Select a stock</h2>
+            <span class="chart-subtitle" id="chartSubtitle"></span>
+            <span class="growth-badge" id="growthBadge" style="display:none"></span>
+          </div>
+          <div class="chart-controls">
+            <div class="chart-type-btns">
+              <button class="chart-btn active" data-type="line">Line</button>
+              <button class="chart-btn" data-type="bar">Bar</button>
+              <button class="chart-btn" data-type="candlestick">Candle</button>
+            </div>
+            <div class="range-btns">
+              <button class="range-btn active" data-range="1d">1D</button>
+              <button class="range-btn" data-range="5d">5D</button>
+              <button class="range-btn" data-range="1mo">1M</button>
+              <button class="range-btn" data-range="3mo">3M</button>
+              <button class="range-btn" data-range="10y">10Y</button>
+            </div>
+          </div>
         </div>
-      </div>
-    </section>
+        <div class="chart-container">
+          <canvas id="stockChart"></canvas>
+          <div class="chart-placeholder" id="chartPlaceholder">
+            <span>📊</span>
+            <p>Click a stock to view its chart</p>
+          </div>
+        </div>
+      </section>
+    </main>
 
     <!-- 5-Year Forecast Panel -->
     <section class="forecast-panel" id="forecastPanel">
@@ -192,13 +249,13 @@
         <p class="empty-state">No alerts set.</p>
       </div>
     </section>
-  </main>
+  </div>
 
   <!-- Toast notifications -->
   <div class="toast-container" id="toastContainer"></div>
 
   <footer class="site-footer">
-    <span>© 2026 StockPulse. Data is for informational purposes only — not financial advice.</span>
+    <span>© 2026 Market Pulse. Data is for informational purposes only — not financial advice.</span>
     <a href="/privacy.html">Privacy Policy</a>
   </footer>
 
