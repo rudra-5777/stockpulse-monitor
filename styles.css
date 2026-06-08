@@ -29,11 +29,17 @@
 
 /* ===== Reset ===== */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
 body {
   font-family: 'Segoe UI', system-ui, sans-serif;
   background: var(--bg);
   color: var(--text);
-  min-height: 100vh;
   transition: background 0.3s, color 0.3s;
   display: flex;
 }
@@ -50,11 +56,13 @@ body {
   top: 0;
   height: 100vh;
   z-index: 200;
+  overflow-y: auto;
 }
 
 .sidebar-header {
   padding: 1.5rem 1rem;
   border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
 }
 
 .sidebar-logo {
@@ -136,6 +144,7 @@ body {
 .sidebar-footer {
   padding: 1rem;
   border-top: 1px solid var(--border);
+  flex-shrink: 0;
 }
 
 .user-info {
@@ -159,6 +168,7 @@ body {
   justify-content: center;
   font-weight: 700;
   font-size: 0.875rem;
+  flex-shrink: 0;
 }
 
 .user-details {
@@ -199,6 +209,8 @@ body {
   display: flex;
   flex-direction: column;
   height: 100vh;
+  width: calc(100% - var(--sidebar-width));
+  overflow: hidden;
 }
 
 /* ===== Header ===== */
@@ -211,10 +223,11 @@ body {
   border-bottom: 1px solid var(--border);
   z-index: 100;
   gap: 1.5rem;
+  flex-shrink: 0;
 }
 
 .header-left {
-  flex: 1;
+  flex: 0 1 auto;
 }
 
 .page-title {
@@ -233,7 +246,8 @@ body {
   display: flex;
   align-items: center;
   gap: 1rem;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  flex-shrink: 0;
 }
 
 /* ===== Search ===== */
@@ -309,6 +323,7 @@ body {
   padding: 4px 10px;
   border-radius: 20px;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 /* ===== Buttons ===== */
@@ -324,6 +339,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 .btn-icon:hover {
@@ -389,8 +405,9 @@ body {
   grid-template-columns: 280px 1fr;
   gap: 1.5rem;
   padding: 1.5rem 2rem;
-  overflow-y: auto;
+  overflow: hidden;
   min-height: 0;
+  min-width: 0;
 }
 
 /* ===== Watchlist Panel ===== */
@@ -401,7 +418,8 @@ body {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  max-height: 100%;
+  min-height: 0;
+  min-width: 0;
 }
 
 .panel-header {
@@ -410,6 +428,7 @@ body {
   justify-content: space-between;
   padding: 1rem 1.25rem;
   border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
 }
 
 .panel-header h2 {
@@ -430,6 +449,7 @@ body {
   padding: 0.85rem 1.25rem;
   border-bottom: 1px solid var(--border);
   flex-wrap: wrap;
+  flex-shrink: 0;
 }
 
 .add-symbol-form input {
@@ -456,6 +476,7 @@ body {
 .watchlist {
   overflow-y: auto;
   flex: 1;
+  min-height: 0;
 }
 
 .empty-state {
@@ -588,7 +609,8 @@ body {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  max-height: 100%;
+  min-height: 0;
+  min-width: 0;
 }
 
 .chart-header {
@@ -599,6 +621,7 @@ body {
   border-bottom: 1px solid var(--border);
   flex-wrap: wrap;
   gap: 1rem;
+  flex-shrink: 0;
 }
 
 .chart-title-group h2 {
@@ -652,6 +675,7 @@ body {
   padding: 1.5rem;
   min-height: 350px;
   overflow: hidden;
+  min-width: 0;
 }
 
 .chart-placeholder {
@@ -932,6 +956,7 @@ body {
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   overflow: hidden;
+  flex-shrink: 0;
 }
 
 .best-pick-header {
@@ -1261,6 +1286,7 @@ body {
   gap: 0.75rem;
   padding: 1.25rem;
   border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
 }
 
 .fc-search-bar input {
@@ -1285,6 +1311,7 @@ body {
   flex-wrap: wrap;
   padding: 0.75rem 1.25rem;
   border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
 }
 
 .fc-quick {
@@ -1334,15 +1361,16 @@ body {
 }
 
 @media (max-width: 900px) {
+  --sidebar-width: 160px;
+
   .sidebar {
     width: 160px;
   }
 
   .main-wrapper {
     margin-left: 160px;
+    width: calc(100% - 160px);
   }
-
-  --sidebar-width: 160px;
 
   .logo-text {
     display: none;
@@ -1385,16 +1413,20 @@ body {
 }
 
 @media (max-width: 600px) {
+  --sidebar-width: 60px;
+
   .sidebar {
     width: 60px;
   }
 
   .main-wrapper {
     margin-left: 60px;
+    width: calc(100% - 60px);
   }
 
   .sidebar-header {
     padding: 1rem 0;
+    display: flex;
     justify-content: center;
   }
 
@@ -1448,23 +1480,5 @@ body {
 
 /* ===== Footer ===== */
 .site-footer {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1.5rem;
-  padding: 1rem;
-  background: var(--bg2);
-  border-top: 1px solid var(--border);
-  font-size: 0.75rem;
-  color: var(--text2);
-  flex-wrap: wrap;
-}
-
-.site-footer a {
-  color: var(--accent);
-  text-decoration: none;
-}
-
-.site-footer a:hover {
-  text-decoration: underline;
+  display: none;
 }
